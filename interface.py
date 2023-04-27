@@ -527,9 +527,13 @@ class Draw:
                     print("\u2503", end='')
                 elif (i == 3 and j == 92):  # уведомление
                     print("@", end='')
-                # elif (i == 10 and j == 5):
-                #     print(GuestsList['users']['user']['login'], end='')
-                #     j += len(GuestsList['users']['user']['login']) - 1
+                elif (i == 8 and j == 5):
+                    print("Логин:Пароль, № комнаты", end="")
+                    j += len("Логин:Пароль, № комнаты") - 1
+                elif (9 < i < (10 + len(GuestsList['users'])) and j == 5):
+                    guest = GuestsList['users'][i - 10]
+                    print(f"{guest['login']}:{guest['password']} комната {guest['room_number']}", end="")
+                    j += len(f"{guest['login']}:{guest['password']} комната {guest['room_number']}") - 1
                 else:
                     print(" ", end='')
                 j = j + 1
@@ -772,28 +776,8 @@ class Window:
     def GuestsList(self):
         key = 'w'
         while key != 'enter':
-            # command = json.dumps({"command_name": "get_all_users"})
-            # GuestsList = json.loads(ClientSession.message_handle(command))
-            GuestsList = {
-                'server_answer': '',
-                'users': [
-                    {
-                        'login': 'Jonh',
-                        'password': '1234',
-                        'is_admin': False,
-                        'room_number': 5,  # если нет комнаты то -1
-                        'reserve_room_number': -1  # номер зарезервированной комнаты (-1 если нет)
-                    },
-                    {
-                        'login': 'Jonh2',
-                        'password': '12343',
-                        'is_admin': True,
-                        'room_number': -1,  # если нет комнаты то -1
-                        'reserve_room_number': -1
-                    }
-                ],
-                'answer_status': 'ok'
-            }
+            command = json.dumps({"command_name": "get_all_users"})
+            GuestsList = json.loads(ClientSession.message_handle(command))
             Draw.GuestsList(GuestsList)
             key = read_key()
         choice = 'AdminMenu'
