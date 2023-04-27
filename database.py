@@ -207,7 +207,7 @@ class Database:
                                        VALUES (?,?,?,?)"""
             self.execute(insert, (login, cur_datetime, 'Вы выселены', False), commit=True)
             
-           return json.dumps({
+            return json.dumps({
                 'server_answer': 'Вы выселили пользователя',
                 'answer_status': 'ok'
             })
