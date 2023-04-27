@@ -1,18 +1,22 @@
 import keyboard
-keyboard.unhook_all()
 import os
-import datetime
-import sqlite3
 import json
-#import data.config
-#from server_api import ClientSession
+from client import Client
+
+
+keyboard.unhook_all()
+
+
 def read_key():
     while True:
         event = keyboard.read_event()
         if event.event_type == "down":
             return event.name
+
+
 def clear_console():
     os.system('cls' if os.name=='nt' else 'clear')
+
 
 class Draw:
     def StartMenu(self, choice):
@@ -642,6 +646,8 @@ class Draw:
 #ClientSession = ClientSession()
 Draw = Draw()
 class Window:
+    def __init__(self):
+        self.connection = Client()
 
     # СТАРТОВОЕ МЕНЮ
     def StartMenu (self):
@@ -667,6 +673,7 @@ class Window:
         last_name = 'unknown'
         is_admin = False
         command = json.dumps({{"command_name": "login", "args": {{"login": f"{login}", "password": f"{password}"}}}})
+        json.loads(self.connection.send_message_to_server(command)) # вместо ClientSession
         while json.loads(ClientSession.message_handle(command))['login_status'] != True:
             key = 'w'
             while key != 'enter':
@@ -892,6 +899,7 @@ login = 'unknown'
 password = 'unknown'
 first_name = 'unknown'
 last_name = 'unknown'
+
 
 while True:
     if choice == 'StartMenu':

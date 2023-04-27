@@ -10,6 +10,7 @@ class ClientSession:
         self.client_password = None
         self.is_admin = False
         self.database = Database()
+
     def message_handle(self, command: str):
         # сервер принимает команды в формате json и отвечает на них тоже json
         # пример команды(запроса от пользователя):
