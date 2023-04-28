@@ -42,6 +42,7 @@ class Database:
           `room_number` INT8 not null,
           `occupied` BOOLEAN null,
           `room_resident` varchar(255) not null,
+          'reserve_list' VARCHAR[] not NULL,
           `room_id` INTEGER PRIMARY KEY not null
     )"""
         self.execute(sql, commit=True)
@@ -66,6 +67,10 @@ class Database:
         if result is not None:
             sql_update = "UPDATE users SET login_status='active' WHERE user_id=?"
             self.execute(sql_update, (result.user_id,), commit=True)
+            return True
+        else:
+            return False
+
             # return json.dumps({
             #     'server_answer': f"Вы успешно вошли в аккаунт",
             #     'answer_status': 'ok'
@@ -84,6 +89,9 @@ class Database:
             sql_insert = "INSERT INTO users (login, password, first_name, last_name, login_status) VALUES (?, ?, ?, ?, ?)"
             self.execute(sql_insert, (login, password, first_name, last_name, 'active'), commit=True)
             print("Вы успешно зарегистрировались")
+            return True
+        else:
+            return False
             # return json.dumps({
             #     'server_answer': f"Вы успешно зарегистрировались",
             #     'answer_status': 'ok'}
@@ -99,14 +107,25 @@ class Database:
         result = self.execute(sql, (login,), fetchone=True)
         if result is not None:
             status = result[0]
+            return
+        else:
+            return False
             # return status
         # else:
             # return None
 
+    def get_admin_status(self, login):
+        sql = "SELECT admin_status FROM users WHERE login=?"
+        result = self.execute(sql, (login,), fetchone=True)
+        if result is not None:
+            admin_status = result[0]
+            return admin_status
+        else:
+            return False
+
     def get_rooms_list(self):
         sql = "SELECT * FROM rooms"
         result = self.execute(sql, fetchall=True)
-
         rooms = []
 
         for item in result:
@@ -114,9 +133,30 @@ class Database:
                 'room_floor':item[0],
                 'room_number':item[1],
                 'occupied': bool(item[2]),
-                'room_resident':item[3]
+                'room_resident':item[3],
+                'reserve_list': item[4]
             })
 
+        rooms_list = []
+        for floor in range(1, 4):
+            for room_number in range(1, 6):
+                room = next((r for r in rooms if r['room_floor'] == floor and r['room_number'] == room_number), None)
+                if room:
+                    rooms_list.append(room)
+                else:
+                    rooms_list.append({
+                        'room_floor': floor,
+                        'room_number': room_number,
+                        'occupied': False,
+                        'room_resident': '',
+                        'reserve_list': []
+                    })
+
+        return json.dumps({
+            'server_answer': 'Список комнат',
+            'rooms': rooms_list,
+            'answer_status': 'ok'
+        })
             # return json.dumps({
             #     'server_answer':'Список комнат',
             #     'rooms': rooms
@@ -128,4 +168,3 @@ if __name__ == '__main__':
     admin = Database()
     admin.user_register("Stepik", "456", "Stepan", "Kot", admin_status=True)
     db.user_login("zxc", "123")
-
