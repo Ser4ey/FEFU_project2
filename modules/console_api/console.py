@@ -112,9 +112,3 @@ if __name__ == '__main__':
     # input()
     print(console1.get_char())
 
-
-
-
-
-
-

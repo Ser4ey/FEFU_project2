@@ -22,7 +22,7 @@ class Database:
         connection = self.connection
         # connection.set_trace_callback(logger)
         cursor = connection.cursor()
-        # cursor.execute(sql, parameters)
+        cursor.execute(sql, parameters)
         data = None
 
         if commit:
@@ -37,20 +37,20 @@ class Database:
 
     def create_table_of_rooms(self):
         sql = """
-        create table `rooms` (
+        create table IF NOT EXISTS `rooms` (
           `room_floor` INT8 not null,
           `room_number` INT8 not null,
           `occupied` BOOLEAN null,
           `room_resident` varchar(255) not null,
           'reserve_list' VARCHAR[] not NULL,
-          `room_id` INTEGER PRIMARY KEY not null
+          `room_id` INT8 PRIMARY KEY not null
     )"""
         self.execute(sql, commit=True)
 
     def create_table_of_users(self):
         sql = """
-        create table `users` (
-          `user_id` INTEGER PRIMARY KEY not null,
+        create table IF NOT EXISTS `users` (
+          `user_id` INT8 PRIMARY KEY not null,
           `first_name` VARCHAR(255) not null,
           `last_name` VARCHAR(255) not null,
           `login` VARCHAR(255) not null,
@@ -58,6 +58,7 @@ class Database:
           `login_status` VARCHAR(255) not null,
           'admin_status' BOOLEAN not null,
     )"""
+
         self.execute(sql, commit=True)
 
     def user_login(self, login, password):
