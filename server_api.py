@@ -21,6 +21,9 @@ class ClientSession:
             'args': Словарь с дополнительными данными от пользователя (клиента)
         }'''
 
+        print(command)
+        print(self.client_username, self.client_password)
+
         try:
             command = json.loads(command)
             if not ('command_name' in command):
@@ -39,13 +42,13 @@ class ClientSession:
 
         # команды для всех пользователей
         if command["command_name"] == "login":
-            command = {
-                'command_name': "login",
-                'args': {
-                    'login': '123',
-                    'password': '123',
-                }
-            }
+            # command = {
+            #     'command_name': "login",
+            #     'args': {
+            #         'login': '123',
+            #         'password': '123',
+            #     }
+            # }
 
             return_login_status = self.database.user_login(command["args"]["login"], command["args"]["password"])
             # Команда должна проверять зарегистрирован ли пользователь с указанными данными.
@@ -63,15 +66,15 @@ class ClientSession:
                     'answer_status': 'ok'
                 })
         elif command['command_name'] == 'register':
-            command = {
-                'command_name': 'register',
-                'args': {
-                    'login': '123',
-                    'password': '123',
-                    'first_name': "Denis",
-                    'last_name': 'Gusev',
-                }
-            }
+            # command = {
+            #     'command_name': 'register',
+            #     'args': {
+            #         'login': '123',
+            #         'password': '123',
+            #         'first_name': "Denis",
+            #         'last_name': 'Gusev',
+            #     }
+            # }
             self.client_username = command['args']['login']
             self.client_password = command['args']['password']
             self.is_admin = self.database.get_admin_status(self.client_username)
@@ -92,9 +95,9 @@ class ClientSession:
                     'answer_status': 'ok'
                 })
         elif command['command_name'] == 'login_status':
-            command = {
-                'command_name': 'login_status',
-            }
+            # command = {
+            #     'command_name': 'login_status',
+            # }
             return_login_status = self.database.login_status(self.client_username)
             # Команда должна проверять текущий статус пользователя
             if return_login_status:
@@ -114,9 +117,9 @@ class ClientSession:
 
         # команды для пользователей, которые вошли в аккаунт (мы уже знаем их логины, поэтому пользователю не нужно их передавать)
         elif command['command_name'] == 'get_rooms_list':
-            command = {
-                'command_name': 'get_rooms_list',
-            }
+            # command = {
+            #     'command_name': 'get_rooms_list',
+            # }
             self.database.get_rooms_list(self.client_username)
             # получаем список всех комнат
 
@@ -140,12 +143,12 @@ class ClientSession:
             #     'answer_status': 'ok'
             # })
         elif command['command_name'] == 'reserve_room':
-            command = {
-                'command_name': 'reserve_room',
-                'args': {
-                    'room_number': 1
-                }
-            }
+            # command = {
+            #     'command_name': 'reserve_room',
+            #     'args': {
+            #         'room_number': 1
+            #     }
+            # }
             # резервирование свободной комнаты, можно зарезервировать только 1 не занятую комнату
             # создаёт уведомление для пользователя
             # если админ подтверждает резервирование, то пользователь засиляется в комнату
@@ -156,9 +159,9 @@ class ClientSession:
                 'answer_status': 'ok'
             })
         elif command['command_name'] == 'get_notifications':
-            command = {
-                'command_name': 'get_notifications',
-            }
+            # command = {
+            #     'command_name': 'get_notifications',
+            # }
             # Некоторые действия создают уведомления
             # получаем все уведомление
             # типы уведомлений:
@@ -181,9 +184,9 @@ class ClientSession:
             })
         # команды для админов
         elif command['command_name'] == 'get_all_users':
-            command = {
-                'command_name': 'get_all_users',
-            }
+            # command = {
+            #     'command_name': 'get_all_users',
+            # }
             # все зарегестрированные пользователи
 
             return json.dumps({
@@ -207,15 +210,15 @@ class ClientSession:
                 'answer_status': 'ok'
             })
         elif command['command_name'] == 'change_user_residence_status':
-            command = {
-                'command_name': 'change_user_residence_status',
-                'args': {
-                    'change_type': 'confirm_reserve/cansel_reserve/kick_from_room',
-                    'username': 'John', # мы и так знаем где John живёт или где хочет
-                    'reason': 'причина от админа, нужна для уведомления пользователю. '
-                              'Например: Комитет по заселению одобрил вашу кандидатуру!'
-                }
-            }
+            # command = {
+            #     'command_name': 'change_user_residence_status',
+            #     'args': {
+            #         'change_type': 'confirm_reserve/cansel_reserve/kick_from_room',
+            #         'username': 'John', # мы и так знаем где John живёт или где хочет
+            #         'reason': 'причина от админа, нужна для уведомления пользователю. '
+            #                   'Например: Комитет по заселению одобрил вашу кандидатуру!'
+            #     }
+            # }
 
             # меняем статус проживание пользователя подтверждаем/отклоняем его бронь или выселяем пользователя
             # создаёт уведомление для пользователя
