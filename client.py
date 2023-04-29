@@ -1,7 +1,6 @@
 import json
 import socket
 
-
 class Client:
     def __init__(self, ip='127.0.0.1', port=12345):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
