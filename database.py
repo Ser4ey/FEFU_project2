@@ -23,7 +23,7 @@ class Database:
         connection = self.connection
         # connection.set_trace_callback(logger)
         cursor = connection.cursor()
-        # cursor.execute(sql, parameters)
+        cursor.execute(sql, parameters)
         data = None
 
         if commit:
@@ -38,7 +38,7 @@ class Database:
 
     def create_table_of_rooms(self):
         sql = """
-        create table `rooms` (
+        create table IF NOT EXISTS `rooms` (
           `room_floor` INT8 not null,
           `room_number` INT8 not null,
           `occupied` BOOLEAN null,
@@ -50,15 +50,15 @@ class Database:
 
     def create_table_of_users(self):
         sql = """
-        create table `users` (
+        create table IF NOT EXISTS `users` (
           `user_id` INTEGER PRIMARY KEY not null,
           `first_name` VARCHAR(255) not null,
           `last_name` VARCHAR(255) not null,
           `login` VARCHAR(255) not null,
           `password` VARCHAR(255) not null,
           `login_status` VARCHAR(255) not null,
-          'admin_status' BOOLEAN not null,
-    )"""
+          'admin_status' BOOLEAN not null
+            )"""
         self.execute(sql, commit=True)
 
     def user_login(self, login, password):
@@ -280,7 +280,7 @@ class Database:
             
 if __name__ == '__main__':
     db = Database()
-    db.user_register("zxc", "123", "Gleb", "Kim")
-    admin = Database()
-    admin.user_register("Stepik", "456", "Stepan", "Kot", admin_status=True)
-    db.user_login("zxc", "123")
+    # db.user_register("zxc", "123", "Gleb", "Kim")
+    # admin = Database()
+    # admin.user_register("Stepik", "456", "Stepan", "Kot", admin_status=True)
+    # db.user_login("zxc", "123")
