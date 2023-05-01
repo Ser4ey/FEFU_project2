@@ -12,6 +12,7 @@ class ClientSession:
         self.database = Database()
 
     def message_handle(self, command: str):
+
         # сервер принимает команды в формате json и отвечает на них тоже json
         # пример команды(запроса от пользователя):
         # '{"command_name": "login", "args": {"login": "123", "password": "123"}}'
@@ -37,11 +38,9 @@ class ClientSession:
                 'answer_status': 'problem' # статус problem - только в случае неверного формата команды
             })
 
-        # ниже представлен список доступных команд. Их всех нужно реализовать. В каждой каманде:
-        # command - пример(формат) команды от пользователя + что должна сделать команда + формат ответа
-
-        # команды для всех пользователей
         if command["command_name"] == "login":
+            self.client_username = command["args"]["login"]
+            self.client_password = command["args"]["password"]
             # command = {
             #     'command_name': "login",
             #     'args': {
@@ -51,8 +50,7 @@ class ClientSession:
             # }
 
             return_login_status = self.database.user_login(command["args"]["login"], command["args"]["password"])
-            # Команда должна проверять зарегистрирован ли пользователь с указанными данными.
-            # Если да, то меняет статус пользователя
+
             if return_login_status:
                 return json.dumps({
                     'server_answer': 'Вы успешно вошли в аккаунт',
@@ -65,6 +63,7 @@ class ClientSession:
                     'login_status': False,
                     'answer_status': 'ok'
                 })
+
         elif command['command_name'] == 'register':
             # command = {
             #     'command_name': 'register',
@@ -78,9 +77,7 @@ class ClientSession:
             self.client_username = command['args']['login']
             self.client_password = command['args']['password']
             self.is_admin = self.database.get_admin_status(self.client_username)
-            return_register_status = self.database.user_register(command["args"]["login"], command["args"]["password"], command["args"]["first_name"], command["args"]["last_name"]),
-            # Команда должна регистрировать пользователя с указанными данными.
-            # Если такого пользователя нет, то регистрировать его
+            return_register_status = self.database.user_register(command["args"]["login"], command["args"]["password"], command["args"]["first_name"], command["args"]["last_name"])
 
             if return_register_status:
                 return json.dumps({
@@ -99,7 +96,6 @@ class ClientSession:
             #     'command_name': 'login_status',
             # }
             return_login_status = self.database.login_status(self.client_username)
-            # Команда должна проверять текущий статус пользователя
             if return_login_status:
                 return json.dumps({
                     'server_answer': 'Пользователь с таким именем существует',
@@ -121,27 +117,7 @@ class ClientSession:
             #     'command_name': 'get_rooms_list',
             # }
             self.database.get_rooms_list(self.client_username)
-            # получаем список всех комнат
 
-            # return json.dumps({
-            #     'server_answer': 'Список комнат',
-            #     'rooms': [
-            #         {
-            #             'room_number': 1, # уникален для каждой комнаты
-            #             'room_floor': 2,
-            #             'occupied': False, # True - комната занята False - комната свободна
-            #             'room_resident': '', # ник человека проживающего в комнате (эти данные получает только админ),
-            #             'reserve_list': ['Gor', 'Nom'] # Список
-            #         },
-            #         {
-            #             'room_number': 4,
-            #             'room_floor': 54,
-            #             'occupied': True,  # True - комната занята False - комната свободна
-            #             'room_resident': 'John',  # ник человека проживающего в комнате (эти данные получает только админ)
-            #         }
-            #     ],
-            #     'answer_status': 'ok'
-            # })
         elif command['command_name'] == 'reserve_room':
             # command = {
             #     'command_name': 'reserve_room',
