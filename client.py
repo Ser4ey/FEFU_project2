@@ -20,6 +20,6 @@ if __name__ == '__main__':
     client = Client()
     while True:
         res = client.send_message_to_server(input('Введите сообщение:'))
-        print(res)
+        print(json.loads(res))
 
 
