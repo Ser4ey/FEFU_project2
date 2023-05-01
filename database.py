@@ -52,13 +52,12 @@ class Database:
         sql = """
         create table IF NOT EXISTS `users` (
           `user_id` INT8 PRIMARY KEY not null,
-
           `first_name` VARCHAR(255) not null,
           `last_name` VARCHAR(255) not null,
           `login` VARCHAR(255) not null,
           `password` VARCHAR(255) not null,
           `login_status` VARCHAR(255) not null,
-          'admin_status' BOOLEAN not null,
+          'admin_status' BOOLEAN not null
     )"""
 
 
@@ -88,6 +87,7 @@ class Database:
     def user_register(self, login, password, first_name, last_name, admin_status=False):
         sql = "SELECT * FROM users WHERE login=?"
         result = self.execute(sql, (login,), fetchone=True)
+
 
         if result is None:
             sql_insert = "INSERT INTO users (login, password, first_name, last_name, login_status) VALUES (?, ?, ?, ?, ?)"
@@ -283,7 +283,7 @@ class Database:
             
 if __name__ == '__main__':
     db = Database()
-    # db.user_register("zxc", "123", "Gleb", "Kim")
+    db.user_register("zxc", "123", "Gleb", "Kim")
     # admin = Database()
     # admin.user_register("Stepik", "456", "Stepan", "Kot", admin_status=True)
     # db.user_login("zxc", "123")
