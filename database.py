@@ -79,7 +79,6 @@ class Database:
         sql = "SELECT login FROM users"
         result = self.execute(sql, (login,), fetchone=True)
         if result is not None:
-
             return True
         else:
             return False
@@ -112,58 +111,9 @@ class Database:
 
         return result
 
-    def get_rooms_list(self):
-        sql = "SELECT * FROM rooms"
-        result = self.execute(sql, fetchall=True)
-        rooms = []
 
-        for item in result:
-            rooms.append({
-                'room_floor':item[0],
-                'room_number':item[1],
-                'occupied': bool(item[2]),
-                'room_resident':item[3],
-                'reserve_list': item[4]
-            })
-
-        rooms_list = []
-        for floor in range(1, 4):
-            for room_number in range(1, 6):
-                room = next((r for r in rooms if r['room_floor'] == floor and r['room_number'] == room_number), None)
-                if room:
-                    rooms_list.append(room)
-                else:
-                    rooms_list.append({
-                        'room_floor': floor,
-                        'room_number': room_number,
-                        'occupied': False,
-                        'room_resident': '',
-                        'reserve_list': []
-                    })
-
-        return json.dumps({
-            'server_answer': 'Список комнат',
-            'rooms': rooms_list,
-            'answer_status': 'ok'
-        })
-            # return json.dumps({
-            #     'server_answer':'Список комнат',
-            #     'rooms': rooms
-            # })
 
 class UsrersDB:
-    def create_table_of_rooms(self):
-        sql = """
-        create table IF NOT EXISTS `rooms` (
-          `room_floor` INT8 not null,
-          `room_number` INT8 not null,
-          `occupied` BOOLEAN null,
-          `room_resident` varchar(255) not null,
-          'reserve_list' VARCHAR[] not NULL,
-          `room_id` INTEGER PRIMARY KEY AUTOINCREMENT not null
-    )"""
-        self.execute(sql, commit=True)
-
     def create_table_of_users(self):
         sql = """
         create table IF NOT EXISTS `users` (
@@ -178,7 +128,6 @@ class UsrersDB:
 
     def __init__(self, path_to_db = data.config.path_to_database):
         self.path_to_db = path_to_db
-        self.create_table_of_rooms()
         self.create_table_of_users()
 
     @property
@@ -249,6 +198,65 @@ class UsrersDB:
         # else:
         #     print("Вас нет в системе")
         #     return False
+
+class RoomsDb:
+    def __init__(self, path_to_db = data.config.path_to_database):
+        self.path_to_db = path_to_db
+        self.create_table_of_rooms()
+
+    def create_table_of_rooms(self):
+        sql = """
+        create table IF NOT EXISTS `rooms` (
+          `room_floor` INT8 not null,
+          `room_number` INT8 not null,
+          `occupied` BOOLEAN null,
+          `room_resident` varchar(255) not null,
+          'reserve_list' VARCHAR[] not NULL,
+          `room_id` INTEGER PRIMARY KEY AUTOINCREMENT not null
+    )"""
+        self.execute(sql, commit=True)
+
+    def create_room(self, room_floor, room_number):
+        pass
+
+    def get_rooms_list(self):
+        sql = "SELECT * FROM rooms"
+        result = self.execute(sql, fetchall=True)
+        rooms = []
+
+        for item in result:
+            rooms.append({
+                'room_floor':item[0],
+                'room_number':item[1],
+                'occupied': bool(item[2]),
+                'room_resident':item[3],
+                'reserve_list': item[4]
+            })
+
+        rooms_list = []
+        for floor in range(1, 4):
+            for room_number in range(1, 6):
+                room = next((r for r in rooms if r['room_floor'] == floor and r['room_number'] == room_number), None)
+                if room:
+                    rooms_list.append(room)
+                else:
+                    rooms_list.append({
+                        'room_floor': floor,
+                        'room_number': room_number,
+                        'occupied': False,
+                        'room_resident': '',
+                        'reserve_list': []
+                    })
+
+        return json.dumps({
+            'server_answer': 'Список комнат',
+            'rooms': rooms_list,
+            'answer_status': 'ok'
+        })
+            # return json.dumps({
+            #     'server_answer':'Список комнат',
+            #     'rooms': rooms
+            # })
 
 
 if __name__ == '__main__':

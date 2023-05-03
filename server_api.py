@@ -68,24 +68,14 @@ class ClientSession:
             })
 
 
-        elif command['command_name'] == 'login_status':
+        elif command['command_name'] == 'admin_status':
             user = self.usersdb.get_user_info(self.client_username)
-
             if user is None:
                 return json.dumps({
-                    'server_answer': 'Пользователя с таким именем не существует',
-                    'register_status': False,
-                    'is_admin': False,
+                    'server_answer': '',
+                    'is_admin': user[5],
                     'answer_status': 'ok'
                 })
-
-            # return_login_status = self.database.login_status(self.client_username)
-            return json.dumps({
-                'server_answer': 'Пользователь с таким именем существует',
-                'register_status': True,
-                'is_admin': user[5],
-                'answer_status': 'ok'
-            })
 
 
 
