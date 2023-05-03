@@ -1,3 +1,5 @@
+import time
+
 import keyboard
 import os
 import json
@@ -657,8 +659,8 @@ Draw = Draw()
 
 
 class Window:
-    # def __init__(self):
-    #     self.connection = Client()
+    def __init__(self):
+        self.connection = Client()
 
     # СТАРТОВОЕ МЕНЮ
     def StartMenu(self):
@@ -682,21 +684,27 @@ class Window:
         password = 'unknown'
         first_name = 'unknown'
         last_name = 'unknown'
-        is_admin = False
-        # command = json.dumps({{"command_name": "login", "args": {{"login": f"{login}", "password": f"{password}"}}}})
-        # while json.loads(self.connection.send_message_to_server(command))['login_status'] != True:
-        key = 'w'
-        while key != 'enter':
-            Draw.LogIn()
-            print("Введите логин: ", end="")
-            login = input()
-            print("Введите пароль: ", end="")
-            password = input()
-            print("Подтвердите вход (Enter): ")
-            key = read_key()
-        # command = json.dumps({{"command_name": "login", "args": {{"login": f"{login}", "password": f"{password}"}}}})
-        # command = json.dumps({"command_name": "login_status"})
-        # is_admin = json.loads(self.connection.send_message_to_server(command))['is_admin']
+        while True:
+            key = 'w'
+            while key != 'enter':
+                Draw.LogIn()
+                print("Введите логин: ", end="")
+                login = input()
+                print("Введите пароль: ", end="")
+                password = input()
+                print("Подтвердите вход (Enter): ")
+                key = read_key()
+
+            command = json.dumps({"command_name": "login", "args": {"login": f"{login}", "password": f"{password}"}})
+            server_answer = json.loads(self.connection.send_message_to_server(command))
+            print(server_answer)
+            time.sleep(2)
+            if server_answer['login_status']:
+                break
+
+        command = json.dumps({"command_name": "admin_status"})
+        is_admin = json.loads(self.connection.send_message_to_server(command))['is_admin']
+
         if is_admin:
             choice = 'AdminMenu'
         else:

@@ -218,7 +218,7 @@ class NotificationDB:
 
 if __name__ == '__main__':
     db = UsersDB()
-    # db.user_register("zxc2", "123", "Gleb", "Kim")
+    db.user_register("test", "test", "Gleb", "Kim")
     db.user_register("admin", "admin", "Stepan", "Kot", admin_status=True)
     # # print(db.get_user_info("Sergey"))
     #
