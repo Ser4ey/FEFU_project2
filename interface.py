@@ -3,7 +3,6 @@ import os
 import json
 from client import Client
 
-
 keyboard.unhook_all()
 
 
@@ -15,7 +14,7 @@ def read_key():
 
 
 def clear_console():
-    os.system('cls' if os.name=='nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 class Draw:
@@ -66,6 +65,7 @@ class Draw:
             i = i + 1
         if choice == 'exit':
             print('Подтвердите выход (Enter).')
+
     def LogIn(self):
         clear_console()
         i = 0
@@ -99,13 +99,14 @@ class Draw:
                 j = j + 1
             print()
             i = i + 1
+
     def SignUp(self):
         clear_console()
         i = 0
         while i < 40:
             j = 0
             while j < 100:
-                if (i == 0 and j == 0) or (i == 10 and j == 29) :
+                if (i == 0 and j == 0) or (i == 10 and j == 29):
                     print("\u250f", end='')  # левый верхний угол
                 elif (i == 0 and j == 99) or (i == 10 and j == 69):  # правый угол
                     print("\u2513", end='')
@@ -132,6 +133,7 @@ class Draw:
                 j = j + 1
             print()
             i = i + 1
+
     def GuestMenu(self, choice, first_name):
         clear_console()
         i = 0
@@ -147,7 +149,7 @@ class Draw:
                 elif (i == 39 and j == 0) or (i == 14 and j == 25) or (
                         i == 30 and j == 25) or (i == 4 and j == 90):
                     print("\u2517", end='')
-                elif (i == 39 and j == 99) or (i == 14 and j == 70)  or (
+                elif (i == 39 and j == 99) or (i == 14 and j == 70) or (
                         i == 30 and j == 70) or (i == 4 and j == 95):
                     print("\u251b", end='')
                 elif (i == 0 or i == 39):  # горизонталь
@@ -191,6 +193,7 @@ class Draw:
                 j = j + 1
             print()
             i = i + 1
+
     def AdminMenu(self, choice, first_name):
         clear_console()
         i = 0
@@ -247,6 +250,7 @@ class Draw:
                 j = j + 1
             print()
             i = i + 1
+
     def RoomsTable(self, button_id_x, button_id_y):
         clear_console()
         i = 0
@@ -289,7 +293,7 @@ class Draw:
                     print("1 этаж", end='')
                     j += 5
                 elif (i == 9 or i == 12) and (8 < j < 14):  # горизонталь
-                    if button_id_x==1 and button_id_y==1:
+                    if button_id_x == 1 and button_id_y == 1:
                         print("\u2584", end='')
                     else:
                         print("\u2501", end='')
@@ -440,6 +444,7 @@ class Draw:
                 j = j + 1
             print()
             i = i + 1
+
     def GuestStatus(self, login, number):
         clear_console()
         i = 0
@@ -471,7 +476,7 @@ class Draw:
                     j += 36
                 elif (i == 12 and j == 30):
                     print(login, end='')
-                    j += len(login) -1
+                    j += len(login) - 1
                 elif (i == 18 or i == 22) and (25 < j < 70):  # горизонталь
                     print("\u2501", end='')
                 elif (j == 25 or j == 70) and (18 < i < 22):  # вертикаль
@@ -504,6 +509,7 @@ class Draw:
                 j = j + 1
             print()
             i = i + 1
+
     def GuestsList(self, GuestsList: dict):
         clear_console()
         i = 0
@@ -543,6 +549,7 @@ class Draw:
                 j = j + 1
             print()
             i = i + 1
+
     def ManageBooking(self, login, floor, number, occupied, is_admin):
         clear_console()
         i = 0
@@ -569,7 +576,7 @@ class Draw:
                     print("\u2501", end='')
                 elif (j == 25 or j == 70) and (10 < i < 14):  # вертикаль
                     print("\u2503", end='')
-                elif (i == 12 and j == 30) and is_admin: # окно 1
+                elif (i == 12 and j == 30) and is_admin:  # окно 1
                     print(f"Логин: {login}", end='')
                     j += len(f"Логин: {login}") - 1
                 elif (i == 7 and j == 35):
@@ -611,6 +618,7 @@ class Draw:
                 j = j + 1
             print()
             i = i + 1
+
     def Notifications(self, NotificationTitle, NotificationDate, Notification):
         clear_console()
         i = 0
@@ -644,13 +652,16 @@ class Draw:
             print()
             i = i + 1
 
+
 Draw = Draw()
+
+
 class Window:
-    def __init__(self):
-        self.connection = Client()
+    # def __init__(self):
+    #     self.connection = Client()
 
     # СТАРТОВОЕ МЕНЮ
-    def StartMenu (self):
+    def StartMenu(self):
         key = 'w'
         choice = 'LogIn'
         while key != 'enter':
@@ -672,9 +683,8 @@ class Window:
         first_name = 'unknown'
         last_name = 'unknown'
         is_admin = False
-#         command = json.dumps({{"command_name": "login", "args": {{"login": f"{login}", "password": f"{password}"}}}})
-
-#         while json.loads(self.connection.send_message_to_server(command))['login_status'] != True:
+        # command = json.dumps({{"command_name": "login", "args": {{"login": f"{login}", "password": f"{password}"}}}})
+        # while json.loads(self.connection.send_message_to_server(command))['login_status'] != True:
         key = 'w'
         while key != 'enter':
             Draw.LogIn()
@@ -684,10 +694,9 @@ class Window:
             password = input()
             print("Подтвердите вход (Enter): ")
             key = read_key()
-        command = json.dumps({{"command_name": "login", "args": {{"login": f"{login}", "password": f"{password}"}}}})
-        
-        command = json.dumps({"command_name": "login_status"})
-#         is_admin = json.loads(self.connection.send_message_to_server(command))['is_admin']
+        # command = json.dumps({{"command_name": "login", "args": {{"login": f"{login}", "password": f"{password}"}}}})
+        # command = json.dumps({"command_name": "login_status"})
+        # is_admin = json.loads(self.connection.send_message_to_server(command))['is_admin']
         if is_admin:
             choice = 'AdminMenu'
         else:
@@ -701,8 +710,8 @@ class Window:
         first_name = 'unknown'
         last_name = 'unknown'
         is_admin = True
-        command = json.dumps({{"command_name": "register", "args": {{"login": f"{login}", "password": f"{password}", "first_name": f"{first_name}", "last_name": f"{last_name}"}}}})
-#         while json.loads(self.connection.send_message_to_server(command))['register_success_status'] != True:
+        # command = json.dumps({{"command_name": "register", "args": {{"login": f"{login}", "password": f"{password}", "first_name": f"{first_name}","last_name": f"{last_name}"}}}})
+        # while json.loads(self.connection.send_message_to_server(command))['register_success_status'] != True:
 
         key = 'w'
         while key != 'enter':
@@ -717,10 +726,10 @@ class Window:
             last_name = input()
             print("Подтвердите вход (Enter): ")
             key = read_key()
-        command = json.dumps({{"command_name": "register", "args": {{"login": f"{login}", "password": f"{password}", "first_name": f"{first_name}", "last_name": f"{last_name}"}}}})
+        # command = json.dumps({{"command_name": "register", "args": {{"login": f"{login}", "password": f"{password}", "first_name": f"{first_name}","last_name": f"{last_name}"}}}})
 
-        command = json.dumps({"command_name": "login_status"})
-#         is_admin = json.loads(self.connection.send_message_to_server(command))['is_admin']
+        # command = json.dumps({"command_name": "login_status"})
+        # is_admin = json.loads(self.connection.send_message_to_server(command))['is_admin']
         if is_admin:
             choice = 'AdminMenu'
         else:
@@ -745,8 +754,8 @@ class Window:
 
     # МЕНЮ ГОСТЯ
     def GuestMenu(self, first_name):
-        key='w'
-        button_id=0
+        key = 'w'
+        button_id = 0
         choice = 'RoomsTable'
         while key != 'enter':
             if key == 's':
@@ -756,7 +765,7 @@ class Window:
             if key == 'q':
                 choice = 'Notifications'
             Draw.GuestMenu(choice, first_name)
-            key=read_key()
+            key = read_key()
         input()
         return choice
 
@@ -784,8 +793,8 @@ class Window:
     def GuestsList(self):
         key = 'w'
         while key != 'enter':
-            command = json.dumps({"command_name": "get_all_users"})
-#           GuestsList = json.loads(self.connection.send_message_to_server(command))
+            # command = json.dumps({"command_name": "get_all_users"})
+            # GuestsList = json.loads(self.connection.send_message_to_server(command))
             GuestsList = {
                 'server_answer': '',
                 'users': [
@@ -793,8 +802,8 @@ class Window:
                         'login': 'Jonh',
                         'password': '1234',
                         'is_admin': False,
-                        'room_number': 5, # если нет комнаты то -1
-                        'reserve_room_number': -1 # номер зарезервированной комнаты (-1 если нет)
+                        'room_number': 5,  # если нет комнаты то -1
+                        'reserve_room_number': -1  # номер зарезервированной комнаты (-1 если нет)
                     },
                     {
                         'login': 'Jonh2',
@@ -815,8 +824,8 @@ class Window:
     def GuestStatus(self, login):
         key = 'w'
         while key != 'enter':
-            command = json.dumps({"command_name": "get_all_users"})
-#           GuestsList = json.loads(self.connection.send_message_to_server(command))
+            # command = json.dumps({"command_name": "get_all_users"})
+            # GuestsList = json.loads(self.connection.send_message_to_server(command))
             GuestsList = {
                 'server_answer': '',
                 'users': [
@@ -824,8 +833,8 @@ class Window:
                         'login': 'Jonh',
                         'password': '1234',
                         'is_admin': False,
-                        'room_number': 5, # если нет комнаты то -1
-                        'reserve_room_number': -1 # номер зарезервированной комнаты (-1 если нет)
+                        'room_number': 5,  # если нет комнаты то -1
+                        'reserve_room_number': -1  # номер зарезервированной комнаты (-1 если нет)
                     },
                     {
                         'login': 'Jonh2',
@@ -854,8 +863,8 @@ class Window:
         floor = button_id_x
         number = button_id_y
         occupied = False
-        command = json.dumps({"command_name": "get_rooms_list"})
-#       RoomInfo = json.loads(self.connection.send_message_to_server(command))
+        # command = json.dumps({"command_name": "get_rooms_list"})
+        # RoomInfo = json.loads(self.connection.send_message_to_server(command))
         RoomInfo = {
             'server_answer': 'Список комнат',
             'rooms': [
@@ -893,19 +902,19 @@ class Window:
                         print("Введите причину: ", end="")
                         reason = input()
                         print("Подтвердите (Enter): ")
-                        if task == 1:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "confirm_reserve", "username": f"{login}", "reason": f"{reason}"}}})
-                        if task == 2:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "cansel_reserve", "username": f"{login}", "reason": f"{reason}"}}})
-                        if task == 3:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "kick_from_room", "username": f"{login}", "reason": f"{reason}"}}})
-#                         self.connection.send_message_to_server(command)
+                        # if task == 1:
+                            # command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "confirm_reserve", "username": f"{login}", "reason": f"{reason}"}}})
+                        # if task == 2:
+                            # command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "cansel_reserve", "username": f"{login}", "reason": f"{reason}"}}})
+                        # if task == 3:
+                            # command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "kick_from_room", "username": f"{login}", "reason": f"{reason}"}}})
+                        # self.connection.send_message_to_server(command)
                     else:
-                        print("Введите 1, чтобы зарезервировать ",end="")
+                        print("Введите 1, чтобы зарезервировать ", end="")
                         task = input()
-                        if task == 1:
-                            command = json.dumps({"command_name": "reserve_room", "args": {{"room_number": f"{number}]"}}})
-#                         self.connection.send_message_to_server(command)
+                        # if task == 1:
+                            # command = json.dumps({"command_name": "reserve_room", "args": {{"room_number": f"{number}]"}}})
+                        # self.connection.send_message_to_server(command)
                     key = read_key()
             else:
                 while key != 'enter':
@@ -918,19 +927,19 @@ class Window:
                         print("Введите причину: ", end="")
                         reason = input()
                         print("Подтвердите (Enter): ")
-                        if task == 1:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "confirm_reserve", "username": f"{login}", "reason": f"{reason}"}}})
-                        if task == 2:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "cansel_reserve", "username": f"{login}", "reason": f"{reason}"}}})
-                        if task == 3:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "kick_from_room", "username": f"{login}", "reason": f"{reason}"}}})
-#                         self.connection.send_message_to_server(command)
+                        # if task == 1:
+                            # command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "confirm_reserve", "username": f"{login}", "reason": f"{reason}"}}})
+                        # if task == 2:
+                            # command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "cansel_reserve", "username": f"{login}", "reason": f"{reason}"}}})
+                        # if task == 3:
+                            # command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "kick_from_room", "username": f"{login}", "reason": f"{reason}"}}})
+                        # self.connection.send_message_to_server(command)
                     else:
-                        print("Введите 1, чтобы зарезервировать ",end="")
+                        print("Введите 1, чтобы зарезервировать ", end="")
                         task = input()
-                        if task == 1:
-                            command = json.dumps({"command_name": "reserve_room", "args": {{"room_number": f"{number}]"}}})
-#                         self.connection.send_message_to_server(command)
+                        # if task == 1:
+                            # command = json.dumps({"command_name": "reserve_room", "args": {{"room_number": f"{number}]"}}})
+                        # self.connection.send_message_to_server(command)
                     key = read_key()
         if is_admin:
             choice = 'AdminMenu'
@@ -943,9 +952,9 @@ class Window:
         key = 'w'
         while key != 'enter':
             command = json.dumps({"command_name": "get_notifications"})
-#             NotificationTitle = json.loads(self.connection.send_message_to_server(command))['notification_title']
-#             NotificationDate = json.loads(self.connection.send_message_to_server(command))['notification_time']
-#             Notification = json.loads(self.connection.send_message_to_server(command))['notification_text']
+            # NotificationTitle = json.loads(self.connection.send_message_to_server(command))['notification_title']
+            # NotificationDate = json.loads(self.connection.send_message_to_server(command))['notification_time']
+            # Notification = json.loads(self.connection.send_message_to_server(command))['notification_text']
             NotificationTitle = 'Заголовок'
             NotificationDate = '21:43 09.03.2002'
             Notification = 'Пример уведомления'
@@ -957,13 +966,13 @@ class Window:
             choice = 'GuestMenu'
         return choice
 
-Window=Window()
+
+Window = Window()
 choice = 'StartMenu'
 login = 'unknown'
 password = 'unknown'
 first_name = 'unknown'
 last_name = 'unknown'
-
 
 while True:
     if choice == 'StartMenu':
@@ -986,7 +995,3 @@ while True:
         choice = Window.ManageBooking(is_admin, button_id_x, button_id_y)
     if choice == 'Notifications':
         choice = Window.Notifications(is_admin)
-
-
-
-
