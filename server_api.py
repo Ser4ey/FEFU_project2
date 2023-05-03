@@ -172,13 +172,14 @@ class ClientSession:
             notifications = self.notification_db.get_notifications(self.client_username)
             if notifications:
                 for i in notifications:
-                    notifications_to_return.append({
-                            'notification_time': i['time'],
-                            'notification_title': i['title'],
-                            'notification_text': i['text'],
-                            'notification_read_status': i['read_status'],
-                        }
-                    )
+                    if not i['read_status']:
+                        notifications_to_return.append({
+                                'notification_time': i['time'],
+                                'notification_title': i['title'],
+                                'notification_text': i['text'],
+                                'notification_read_status': i['read_status'],
+                            }
+                        )
             return json.dumps({
                 'server_answer': 'Уведомления',
                 'notifications': notifications_to_return,
@@ -227,10 +228,76 @@ class ClientSession:
 
             # меняем статус проживание пользователя подтверждаем/отклоняем его бронь или выселяем пользователя
             # создаёт уведомление для пользователя
+            if command['args']['change_type'] == 'confirm_reserve':
+                user_room = self.rooms_db.select_one_room(reserve_user=command['args']['username'])
+                print(user_room)
+                if not user_room:
+                    return json.dumps({
+                        'server_answer': 'Пользователь нигде не заригистрирован',
+                        'command_status': False,  # команда успешно выполнена
+                        'command_error': '',  # возможные ошибки, например нет пользователя. Тогда command_status==False
+                        'answer_status': 'ok'
+                    })
+                self.rooms_db.update_room_info(user_room[1], user_room[2], 'occupied', True)
+                self.rooms_db.update_room_info(user_room[1], user_room[2], 'room_resident', command['args']['username'])
+                self.rooms_db.update_room_info(user_room[1], user_room[2], 'reserve_user', '')
+
+                self.notification_db.add_notification(command['args']['username'], 'Вы успешно засилены',
+                                                      'Вы успешно засилены')
+                return json.dumps({
+                    'server_answer': 'Вы успешно заселили пользователя',
+                    'command_status': True,  # команда успешно выполнена
+                    'command_error': '',  # возможные ошибки, например нет пользователя. Тогда command_status==False
+                    'answer_status': 'ok'
+                })
+
+            if command['args']['change_type'] == 'cansel_reserve':
+                user_room = self.rooms_db.select_one_room(reserve_user=command['args']['username'])
+                if not user_room:
+                    return json.dumps({
+                        'server_answer': 'Пользователь нигде не заригистрирован',
+                        'command_status': False,  # команда успешно выполнена
+                        'command_error': '',  # возможные ошибки, например нет пользователя. Тогда command_status==False
+                        'answer_status': 'ok'
+                    })
+                self.rooms_db.update_room_info(user_room[1], user_room[2], 'occupied', False)
+                self.rooms_db.update_room_info(user_room[1], user_room[2], 'room_resident', '')
+                self.rooms_db.update_room_info(user_room[1], user_room[2], 'reserve_user', '')
+
+                self.notification_db.add_notification(command['args']['username'], 'Вам отказано в засилении!',
+                                                      'Вам отказано в засилении!')
+                return json.dumps({
+                    'server_answer': 'Вы успешно отказали пользователю',
+                    'command_status': True,  # команда успешно выполнена
+                    'command_error': '',  # возможные ошибки, например нет пользователя. Тогда command_status==False
+                    'answer_status': 'ok'
+                })
+
+            if command['args']['change_type'] == 'kick_from_room':
+                user_room = self.rooms_db.select_one_room(room_resident=command['args']['username'])
+                if not user_room:
+                    return json.dumps({
+                        'server_answer': 'Пользователь нигде не живёт',
+                        'command_status': False,  # команда успешно выполнена
+                        'command_error': '',  # возможные ошибки, например нет пользователя. Тогда command_status==False
+                        'answer_status': 'ok'
+                    })
+                self.rooms_db.update_room_info(user_room[1], user_room[2], 'occupied', False)
+                self.rooms_db.update_room_info(user_room[1], user_room[2], 'room_resident', '')
+                self.rooms_db.update_room_info(user_room[1], user_room[2], 'reserve_user', '')
+
+                self.notification_db.add_notification(command['args']['username'], 'Поздравляем! Вас выслели!',
+                                                      'Поздравляем! Вас выслели!')
+                return json.dumps({
+                    'server_answer': 'Вы успешно выселели пользователя',
+                    'command_status': True,  # команда успешно выполнена
+                    'command_error': '',  # возможные ошибки, например нет пользователя. Тогда command_status==False
+                    'answer_status': 'ok'
+                })
 
             return json.dumps({
-                'server_answer': 'Вы успешно заселили пользователя',
-                'command_status': True, # команда успешно выполнена
+                'server_answer': f'Неизвестная команда:' + f"{command['args']['change_type']}",
+                'command_status': False, # команда успешно выполнена
                 'command_error': '', # возможные ошибки, например нет пользователя. Тогда command_status==False
                 'answer_status': 'ok'
             })
@@ -267,15 +334,24 @@ if __name__ == '__main__':
                 'command_name': 'reserve_room',
                 'args': {
                     'room_floor': 3,
-                    'room_number': 5
+                    'room_number': 3
                 }
             }
-    s.client_username='4044'
-    s.client_password='123'
+    s.client_username='21'
+    s.client_password='21'
 
     command5 = {
         'command_name': 'get_notifications'
     }
-    r4 = s.message_handle(json.dumps(command5))
+
+    command6 = {
+        'command_name': 'change_user_residence_status',
+        'args': {
+            'change_type': 'kick_from_room',
+            'username': '21', # мы и так знаем где John живёт или где хочет
+            'reason': 'причина от админа, нужна для уведомления пользователю. Например: Комитет по заселению одобрил вашу кандидатуру!'
+        }
+    }
+    r4 = s.message_handle(json.dumps(command6))
     print(json.loads(r4))
 

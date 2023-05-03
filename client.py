@@ -8,7 +8,7 @@ class Client:
 
     def send_message_to_server(self, message):
         self.client.send(message.encode('utf-8'))
-        response = self.client.recv(1024).decode("utf-8")
+        response = self.client.recv(2024).decode("utf-8")
 
         return response
 

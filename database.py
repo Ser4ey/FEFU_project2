@@ -226,13 +226,13 @@ if __name__ == '__main__':
     # {"command_name": "registe_r", "args": {"login":"zxc", "password":"123", "first_name":"gleb", "last_name":"kim"}}
 
     n = NotificationDB()
-    # n.add_notification(444, 'refds', 'A1')
-    # n.add_notification(444, 'refds', 'A2')
-    # n.add_notification(444, 'refds')
+    n.add_notification('admin', 'qsdsd', 'A1')
+    n.add_notification('admin', 'wdserfd', 'A2')
+    n.add_notification('admin', 'qsd23!!!!!!sd', 'A3')
 
-    print(n.get_notifications(444))
-    # r = RoomsDB()
-    # r.update_room_info(2, 5, 'room_resident', 'fre4')
-    # print(r.get_rooms_list())
+    # print(n.get_notifications('admin'))
+    r = RoomsDB()
+    r.update_room_info(2, 2, 'room_resident', 'a1')
+    print(r.get_rooms_list())
 
 
