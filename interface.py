@@ -717,31 +717,33 @@ class Window:
         password = 'unknown'
         first_name = 'unknown'
         last_name = 'unknown'
-        is_admin = True
-        # command = json.dumps({{"command_name": "register", "args": {{"login": f"{login}", "password": f"{password}", "first_name": f"{first_name}","last_name": f"{last_name}"}}}})
-        # while json.loads(self.connection.send_message_to_server(command))['register_success_status'] != True:
+        # is_admin = True
+        while True:
+            key = 'w'
+            while key != 'enter':
+                Draw.SignUp()
+                print("Придумайте логин: ", end="")
+                login = input()
+                print("Придумайте пароль: ", end="")
+                password = input()
+                print("Ваше имя: ", end="")
+                first_name = input()
+                print("Ваша фамилия: ", end="")
+                last_name = input()
+                print("Подтвердите вход (Enter): ")
+                key = read_key()
 
-        key = 'w'
-        while key != 'enter':
-            Draw.SignUp()
-            print("Придумайте логин: ", end="")
-            login = input()
-            print("Придумайте пароль: ", end="")
-            password = input()
-            print("Ваше имя: ", end="")
-            first_name = input()
-            print("Ваша фамилия: ", end="")
-            last_name = input()
-            print("Подтвердите вход (Enter): ")
-            key = read_key()
-        # command = json.dumps({{"command_name": "register", "args": {{"login": f"{login}", "password": f"{password}", "first_name": f"{first_name}","last_name": f"{last_name}"}}}})
+            command = json.dumps({"command_name": "register", "args": {"login": f"{login}", "password": f"{password}",
+                                                        "first_name": f"{first_name}", "last_name": f"{last_name}"}})
 
-        # command = json.dumps({"command_name": "login_status"})
-        # is_admin = json.loads(self.connection.send_message_to_server(command))['is_admin']
-        if is_admin:
-            choice = 'AdminMenu'
-        else:
-            choice = 'GuestMenu'
+            server_answer = json.loads(self.connection.send_message_to_server(command))
+            print(server_answer)
+            time.sleep(2)
+            if server_answer['register_success_status']:
+                break
+
+        choice = 'GuestMenu'
+        is_admin = False
         return choice, login, password, first_name, last_name, is_admin
 
     # МЕНЮ АДМИНА

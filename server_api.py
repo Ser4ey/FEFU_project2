@@ -50,6 +50,13 @@ class ClientSession:
                 'answer_status': 'ok'
             })
         elif command['command_name'] == 'register':
+            if command['args']['login'].strip() == '' or command['args']['password'].strip()=='':
+                return json.dumps({
+                    'server_answer': 'Имя пользователя или пароль не может быть пустым.',
+                    'register_success_status': False,
+                    'answer_status': 'ok'
+                })
+
             user = self.users_db.get_user_info(command["args"]["login"])
             if user is not None:
                 return json.dumps({
