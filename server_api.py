@@ -81,7 +81,6 @@ class ClientSession:
                 'is_admin': user[5],
                 'answer_status': 'ok'
             })
-
         elif command['command_name'] == 'get_rooms_list':
             rooms_to_return = []
             for room in self.rooms_db.get_rooms_list():
@@ -105,7 +104,6 @@ class ClientSession:
                     'answer_status': 'ok'
                     }
                 )
-
         elif command['command_name'] == 'reserve_room':
             # command = {
             #     'command_name': 'reserve_room',
@@ -114,12 +112,33 @@ class ClientSession:
             #         'room_number': 1
             #     }
             # }
+
             # резервирование свободной комнаты, можно зарезервировать только 1 не занятую комнату
             # создаёт уведомление для пользователя
             # если админ подтверждает резервирование, то пользователь засиляется в комнату
+            # print(f'AA: {self.rooms_db.select_one_room(reserve_user=self.client_username)}')
+            if not (self.rooms_db.select_one_room(reserve_user=self.client_username) is None):
+                return json.dumps({
+                    'server_answer': 'У вас уже есть зарезервированная комната!',
+                    'reserve_status': 'not_ok',
+                    'answer_status': 'ok'
+                })
+            current_room = self.rooms_db.select_one_room(room_floor=command['args']['room_floor'],
+                                                         room_number=command['args']['room_number'])
+            if current_room[3] or current_room[5] != '':
+                return json.dumps({
+                    'server_answer': 'Комната уже занята(зарезервирована)',
+                    'reserve_status': 'not_ok',
+                    'answer_status': 'ok'
+                })
+
+            self.rooms_db.update_room_info(room_floor=command['args']['room_floor'],
+                                           room_number=command['args']['room_number'],
+                                           thing_to_change='reserve_user',
+                                           new_data=self.client_username)
 
             return json.dumps({
-                'server_answer': 'Комната успешно зарезервирована/Комната уже занята',
+                'server_answer': 'Комната успешно зарезервирована',
                 'reserve_status': 'ok',
                 'answer_status': 'ok'
             })
@@ -153,27 +172,30 @@ class ClientSession:
             #     'command_name': 'get_all_users',
             # }
             # все зарегестрированные пользователи
+            user_to_return = []
+            for user in self.users_db.get_all_users():
+                user_data = {
+                        'login': user[3],
+                        'password': user[4],
+                        'is_admin': user[5],
+                        'room_number': -1,
+                        'reserve_room_number': -1
+                    }
+                user_room = self.rooms_db.select_one_room(room_resident=user[3])
+                if user_room:
+                    user_data['room_number'] = user_room[0]
+                user_reserve_room = self.rooms_db.select_one_room(reserve_user=user[3])
+                if user_reserve_room:
+                    user_data['reserve_room_number'] = user_reserve_room[0]
+
+                user_to_return.append(user_data)
 
             return json.dumps({
                 'server_answer': '',
-                'users': [
-                    {
-                        'login': 'Jonh',
-                        'password': '1234',
-                        'is_admin': False,
-                        'room_number': 5, # если нет комнаты то -1
-                        'reserve_room_number': -1 # номер зарезервированной комнаты (-1 если нет)
-                    },
-                    {
-                        'login': 'Jonh2',
-                        'password': '12343',
-                        'is_admin': True,
-                        'room_number': -1,  # если нет комнаты то -1
-                        'reserve_room_number': -1
-                    }
-                ],
+                'users': user_to_return,
                 'answer_status': 'ok'
             })
+
         elif command['command_name'] == 'change_user_residence_status':
             # command = {
             #     'command_name': 'change_user_residence_status',
@@ -223,8 +245,19 @@ if __name__ == '__main__':
         }
     }
 
-    command4 = {"command_name": "get_rooms_list"}
+    command4 = {
+                'command_name': 'reserve_room',
+                'args': {
+                    'room_floor': 3,
+                    'room_number': 5
+                }
+            }
+    # s.client_username='123'
+    # s.client_password='123'
 
-    r4 = s.message_handle(json.dumps(command4))
+    command5 = {
+        'command_name': 'get_all_users'
+    }
+    r4 = s.message_handle(json.dumps(command5))
     print(json.loads(r4))
 

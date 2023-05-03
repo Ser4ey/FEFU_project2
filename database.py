@@ -113,7 +113,7 @@ class RoomsDB:
     def create_room(self, room_floor, room_number):
         sql = "INSERT INTO rooms(room_floor, room_number, occupied, room_resident, reserve_user)" \
               " VALUES(?, ?, ?, ?, ?)"
-        parameters = (room_floor, room_number, False, '-1', '')
+        parameters = (room_floor, room_number, False, '', '')
         self.execute(sql, parameters=parameters, commit=True)
 
     def create_all_rooms_if_they_not_exist(self):
