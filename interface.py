@@ -622,7 +622,7 @@ class Draw:
             print()
             i = i + 1
 
-    def Notifications(self, NotificationTitle, NotificationDate, Notification):
+        def Notifications(self, notifications):
         clear_console()
         i = 0
         while i < 40:
@@ -643,12 +643,9 @@ class Draw:
                 elif (i == 6 and j == 40):
                     print("Просмотр уведомлений", end='')
                     j += 19
-                elif (i == 9 and j == (100 - len(NotificationTitle) - len(NotificationDate) - 3) / 2):
-                    print(f"{NotificationTitle} в {NotificationDate}", end='')
-                    j += len(NotificationTitle) + len(NotificationDate) + 2
-                elif (i == 10 and j == (100 - len(Notification)) / 2):
-                    print(Notification, end='')
-                    j += len(Notification) - 1
+                elif (i >= 9 and j == 5 and i - 9 < len(notifications)):
+                    print(f"{notifications[i - 9]['notification_time']} : {notifications[i - 9]['notification_title']} - {notifications[i - 9]['notification_text']}",end='')
+                    j += len(f"{notifications[i - 9]['notification_time']} : {notifications[i - 9]['notification_title']} - {notifications[i - 9]['notification_text']}") - 1
                 else:
                     print(" ", end='')
                 j = j + 1
@@ -974,27 +971,13 @@ class Window:
         return choice
 
     # УВЕДОМЛЕНИЯ
-    def Notifications(self, is_admin):
+        def Notifications(self, is_admin):
         key = 'w'
         while key != 'enter':
             command = json.dumps({"command_name": "get_notifications"})
             notifications = json.loads(self.connection.send_message_to_server(command))['notifications']
-            for i in notifications:
-                NotificationTitle = i['notification_title']
-                NotificationDate = i['notification_time']
-                Notification = i['notification_text']
-                print(NotificationTitle)
-                print(Notification)
-                print(NotificationDate)
-
-                read_key()
-                # не работает
-                # Draw.Notifications(NotificationTitle, NotificationDate, Notification)
-
-            NotificationTitle = 'Нет уведомлений'
-            NotificationDate = str(datetime.datetime.now())
-            Notification = 'Нет новых уведомлений'
-            Draw.Notifications(NotificationTitle, NotificationDate, Notification)
+            #notifications = {'notification_time': "22.04.2023", 'notification_title': "Информация о Вашем бронировании", 'notification_text': "Бронирование в комнату 3 подтверждено."}, {'notification_time': "23.04.2023", 'notification_title': "Информация о Вашем бронировании", 'notification_text': "Бронирование в комнату 2 отменено."}
+            Draw.Notifications(notifications)
             key = read_key()
         if is_admin:
             choice = 'AdminMenu'
