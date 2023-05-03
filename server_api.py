@@ -82,7 +82,25 @@ class ClientSession:
         # команды для пользователей, которые вошли в аккаунт (мы уже знаем их логины, поэтому пользователю не нужно их передавать)
         elif command['command_name'] == 'get_rooms_list':
             self.database.get_rooms_list(self.client_username)
-
+            return json.dumps({
+                'server_answer': 'Список комнат',
+                'rooms': [
+                    {
+                        'room_number': 1, # уникален для каждой комнаты
+                        'room_floor': 2,
+                        'occupied': False, # True - комната занята False - комната свободна
+                        'room_resident': '', # ник человека проживающего в комнате (эти данные получает только админ),
+                        'reserve_list': ['Gor', 'Nom'] # Список
+                    },
+                    {
+                        'room_number': 4,
+                        'room_floor': 54,
+                        'occupied': True,  # True - комната занята False - комната свободна
+                        'room_resident': 'John',  # ник человека проживающего в комнате (эти данные получает только админ)
+                    }
+                ],
+                'answer_status': 'ok'
+            })
         elif command['command_name'] == 'reserve_room':
             # command = {
             #     'command_name': 'reserve_room',

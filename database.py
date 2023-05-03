@@ -36,6 +36,20 @@ class Database:
         return data
 
 
+    def create_table_of_users(self):
+        sql = """
+        create table IF NOT EXISTS `users` (
+          `user_id` INT8 PRIMARY KEY not null,
+          `first_name` VARCHAR(255) not null,
+          `last_name` VARCHAR(255) not null,
+          `login` VARCHAR(255) not null,
+          `password` VARCHAR(255) not null,
+          `login_status` VARCHAR(255) not null,
+          'admin_status' BOOLEAN not null
+    )"""
+
+
+        self.execute(sql, commit=True)
 
     def user_login(self, login, password):
         sql = "SELECT * FROM users WHERE login = ? and password = ?"
@@ -65,7 +79,7 @@ class Database:
         sql = "SELECT * FROM users WHERE login=?"
         result = self.execute(sql, (login,), fetchone=True)
 
-        print(f"result = {result}\n")
+
         if result is None:
             sql_insert = "INSERT INTO users (login, password, first_name, last_name, admin_status) VALUES (?, ?, ?, ?, ?)"
             self.execute(sql_insert, (login, password, first_name, last_name, admin_status), commit=True)
@@ -269,5 +283,3 @@ if __name__ == '__main__':
     admin.user_register("Stepik", "456", "Stepan", "Kot", admin_status=True)
     # print(db.get_user_info("Sergey"))
 
-    print(f"Список всех пользователей: {db.get_all_users()}")
-    # {"command_name": "registe_r", "args": {"login":"zxc", "password":"123", "first_name":"gleb", "last_name":"kim"}}
