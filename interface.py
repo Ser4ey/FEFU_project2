@@ -622,7 +622,7 @@ class Draw:
             print()
             i = i + 1
 
-        def Notifications(self, notifications):
+    def Notifications(self, notifications):
         clear_console()
         i = 0
         while i < 40:
@@ -971,7 +971,7 @@ class Window:
         return choice
 
     # УВЕДОМЛЕНИЯ
-        def Notifications(self, is_admin):
+    def Notifications(self, is_admin):
         key = 'w'
         while key != 'enter':
             command = json.dumps({"command_name": "get_notifications"})

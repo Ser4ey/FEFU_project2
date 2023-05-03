@@ -171,17 +171,16 @@ class ClientSession:
             notifications = self.notification_db.get_notifications(self.client_username)
             if notifications:
                 for i in notifications:
-                    if not i['read_status']:
-                        notifications_to_return.append({
-                                'notification_time': i['time'],
-                                'notification_title': i['title'],
-                                'notification_text': i['text'],
-                                'notification_read_status': i['read_status'],
-                            }
-                        )
+                    notifications_to_return.append({
+                            'notification_time': i['time'],
+                            'notification_title': i['title'],
+                            'notification_text': i['text'],
+                            'notification_read_status': i['read_status'],
+                        }
+                    )
             return json.dumps({
                 'server_answer': 'Уведомления',
-                'notifications': notifications_to_return,
+                'notifications': notifications_to_return[::-1],
                 'answer_status': 'ok'
             })
         # команды для админов
