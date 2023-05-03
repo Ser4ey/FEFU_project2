@@ -1,5 +1,5 @@
 import json
-from database import UsersDB
+from database import UsersDB, RoomsDB, NotificationDB
 # оброботавыет запросы, полученные сервером от клиента, и возвращает ответ на них, который сервер отправит клиенту
 # + вносит соответсвующие изменения в базы данных и т.д
 
@@ -9,7 +9,9 @@ class ClientSession:
         self.client_username = None
         self.client_password = None
         self.is_admin = False
-        self.users_db = UsersDB
+        self.users_db = UsersDB()
+        self.rooms_db = RoomsDB()
+        self.notification_db = NotificationDB()
 
     def message_handle(self, command: str):
         try:
@@ -24,7 +26,6 @@ class ClientSession:
                 'server_answer': 'invalid json',
                 'answer_status': 'problem' # статус problem - только в случае неверного формата команды
             })
-
         if command["command_name"] == "login":
             user = self.users_db.get_user_info(command["args"]["login"])
             if user is None:
@@ -48,7 +49,6 @@ class ClientSession:
                 'login_status': True,
                 'answer_status': 'ok'
             })
-
         elif command['command_name'] == 'register':
             user = self.users_db.get_user_info(command["args"]["login"])
             if user is not None:
@@ -60,30 +60,57 @@ class ClientSession:
 
             self.client_username = command['args']['login']
             self.client_password = command['args']['password']
-            return_register_status = self.users_db.user_register(command["args"]["login"], command["args"]["password"], command["args"]["first_name"], command["args"]["last_name"], False)
+            self.users_db.user_register(command["args"]["login"], command["args"]["password"], command["args"]["first_name"], command["args"]["last_name"], False)
 
             return json.dumps({
                 'server_answer': 'Вы успешно зарегистрировались',
                 'register_success_status': True,
                 'answer_status': 'ok'
             })
-
+        # команды для пользователей, которые вошли в аккаунт (мы уже знаем их логины, поэтому пользователю не нужно их передавать)
         elif command['command_name'] == 'admin_status':
             user = self.users_db.get_user_info(self.client_username)
             if user is None:
                 return json.dumps({
                     'server_answer': '',
-                    'is_admin': user[5],
+                    'is_admin': False,
                     'answer_status': 'ok'
                 })
-        # команды для пользователей, которые вошли в аккаунт (мы уже знаем их логины, поэтому пользователю не нужно их передавать)
+            return json.dumps({
+                'server_answer': '',
+                'is_admin': user[5],
+                'answer_status': 'ok'
+            })
+
         elif command['command_name'] == 'get_rooms_list':
-            self.database.get_rooms_list(self.client_username)
+            rooms_to_return = []
+            for room in self.rooms_db.get_rooms_list():
+                room_id, room_floor, room_number, occupied, room_resident, reserve_user = room
+
+                room_data = {
+                    'room_number': room_number,  # уникален для каждой комнаты
+                    'room_floor': room_floor,
+                    'occupied': occupied,  # True - комната занята False - комната свободна
+                    'room_resident': '',
+                    'reserve_user': '',
+                }
+                if self.is_admin:
+                    room_data['room_resident'] = room_resident
+                    room_data['reserve_user'] = reserve_user
+
+                rooms_to_return.append(room_data)
+            return json.dumps({
+                    'server_answer': 'Список комнат',
+                    'rooms': rooms_to_return,
+                    'answer_status': 'ok'
+                    }
+                )
 
         elif command['command_name'] == 'reserve_room':
             # command = {
             #     'command_name': 'reserve_room',
             #     'args': {
+            #         'room_floor': 1,
             #         'room_number': 1
             #     }
             # }
@@ -169,7 +196,7 @@ class ClientSession:
             })
 
         return json.dumps({
-            'server_answer': 'unknown command',
+            'server_answer': f'unknown command: {command["command_name"]}',
             'answer_status': 'problem'
         })
 
@@ -196,5 +223,8 @@ if __name__ == '__main__':
         }
     }
 
-    r2 = s.message_handle(json.dumps(command3))
-    print(json.loads(r2))
+    command4 = {"command_name": "get_rooms_list"}
+
+    r4 = s.message_handle(json.dumps(command4))
+    print(json.loads(r4))
+

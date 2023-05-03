@@ -48,7 +48,6 @@ class UsersDB:
         sql = "SELECT * FROM users WHERE login=?"
         result = self.execute(sql, (login,), fetchone=True)
 
-        print(f"result = {result}\n")
         if result is None:
             sql_insert = "INSERT INTO users (login, password, first_name, last_name, admin_status) VALUES (?, ?, ?, ?, ?)"
             self.execute(sql_insert, (login, password, first_name, last_name, admin_status), commit=True)
@@ -71,9 +70,10 @@ class UsersDB:
 
 
 class RoomsDB:
-    def __init__(self, path_to_db = data.config.path_to_database):
+    def __init__(self, path_to_db=data.config.path_to_database):
         self.path_to_db = path_to_db
         self.create_table_of_rooms()
+        self.create_all_rooms_if_they_not_exist()
 
     @property
     def connection(self):
@@ -101,56 +101,54 @@ class RoomsDB:
     def create_table_of_rooms(self):
         sql = """
         create table IF NOT EXISTS `rooms` (
+          `room_id` INTEGER PRIMARY KEY AUTOINCREMENT not null,
           `room_floor` INT8 not null,
           `room_number` INT8 not null,
           `occupied` BOOLEAN null,
           `room_resident` varchar(255) not null,
-          'reserve_list' VARCHAR[] not NULL,
-          `room_id` INTEGER PRIMARY KEY AUTOINCREMENT not null
+          'reserve_user' varchar(255) not NULL
     )"""
         self.execute(sql, commit=True)
 
     def create_room(self, room_floor, room_number):
-        pass
+        sql = "INSERT INTO rooms(room_floor, room_number, occupied, room_resident, reserve_user)" \
+              " VALUES(?, ?, ?, ?, ?)"
+        parameters = (room_floor, room_number, False, '-1', '')
+        self.execute(sql, parameters=parameters, commit=True)
+
+    def create_all_rooms_if_they_not_exist(self):
+        if self.get_rooms_list():
+            return
+        for room_floor in range(1, 4):
+            for room_number in range(1, 6):
+                self.create_room(room_floor, room_number)
 
     def get_rooms_list(self):
         sql = "SELECT * FROM rooms"
         result = self.execute(sql, fetchall=True)
-        rooms = []
+        return result
 
-        for item in result:
-            rooms.append({
-                'room_floor':item[0],
-                'room_number':item[1],
-                'occupied': bool(item[2]),
-                'room_resident':item[3],
-                'reserve_list': item[4]
-            })
+    @staticmethod
+    def format_args(sql, parameters: dict):
+        # используется для создания sql команды с нужными параметрами для команды ниже
+        sql += ' AND '.join([
+            f"{item} = ?" for item in parameters.keys()
+        ])
+        return sql, tuple(parameters.values())
 
-        rooms_list = []
-        for floor in range(1, 4):
-            for room_number in range(1, 6):
-                room = next((r for r in rooms if r['room_floor'] == floor and r['room_number'] == room_number), None)
-                if room:
-                    rooms_list.append(room)
-                else:
-                    rooms_list.append({
-                        'room_floor': floor,
-                        'room_number': room_number,
-                        'occupied': False,
-                        'room_resident': '',
-                        'reserve_list': []
-                    })
+    def select_one_room(self, **kwargs):
+        sql = 'SELECT * FROM rooms WHERE '
+        sql, parameters = self.format_args(sql, kwargs)
+        return self.execute(sql, parameters, fetchone=True)
 
-        return json.dumps({
-            'server_answer': 'Список комнат',
-            'rooms': rooms_list,
-            'answer_status': 'ok'
-        })
-            # return json.dumps({
-            #     'server_answer':'Список комнат',
-            #     'rooms': rooms
-            # })
+    def update_room_info(self, room_floor, room_number, thing_to_change, new_data):
+        result = self.select_one_room(room_floor=room_floor, room_number=room_number)
+        if not result:
+            print(f'Комнаты {room_floor}:{room_number} не существует.')
+            return f'Комнаты {room_floor}:{room_number} не существует.'
+
+        sql = f"UPDATE rooms SET {thing_to_change}=? WHERE room_floor=? AND room_number=?"
+        self.execute(sql, parameters=(new_data, room_floor, room_number), commit=True)
 
 
 class NotificationDB:
@@ -217,9 +215,9 @@ class NotificationDB:
 
 
 if __name__ == '__main__':
-    # db = UsersDB()
+    db = UsersDB()
     # db.user_register("zxc2", "123", "Gleb", "Kim")
-    # db.user_register("Stepik", "456", "Stepan", "Kot", admin_status=True)
+    db.user_register("admin", "admin", "Stepan", "Kot", admin_status=True)
     # # print(db.get_user_info("Sergey"))
     #
     # print(f"Список всех пользователей: {db.get_all_users()}")
@@ -230,5 +228,9 @@ if __name__ == '__main__':
     # n.add_notification(444, 'refds')
     # n.add_notification(444, 'refds')
 
-    print(n.get_notifications(444))
+    # print(n.get_notifications(444))
+    r = RoomsDB()
+    # r.update_room_info(2, 5, 'room_resident', 'fre4')
+    print(r.get_rooms_list())
+
 

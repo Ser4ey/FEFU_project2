@@ -914,7 +914,7 @@ class Window:
                         task = input()
                         # if task == 1:
                             # command = json.dumps({"command_name": "reserve_room", "args": {{"room_number": f"{number}]"}}})
-                        # self.connection.send_message_to_server(command)
+                            # self.connection.send_message_to_server(command)
                     key = read_key()
             else:
                 while key != 'enter':
