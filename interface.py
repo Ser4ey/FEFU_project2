@@ -643,7 +643,7 @@ class Draw:
                 j = j + 1
             print()
             i = i + 1
-#ClientSession = ClientSession()
+
 Draw = Draw()
 class Window:
     def __init__(self):
@@ -673,8 +673,7 @@ class Window:
         last_name = 'unknown'
         is_admin = False
         command = json.dumps({{"command_name": "login", "args": {{"login": f"{login}", "password": f"{password}"}}}})
-        json.loads(self.connection.send_message_to_server(command)) # вместо ClientSession
-        while json.loads(ClientSession.message_handle(command))['login_status'] != True:
+        while json.loads(self.connection.send_message_to_server(command))['login_status'] != True:
             key = 'w'
             while key != 'enter':
                 Draw.LogIn()
@@ -686,7 +685,7 @@ class Window:
                 key = read_key()
             command = json.dumps({{"command_name": "login", "args": {{"login": f"{login}", "password": f"{password}"}}}})
         command = json.dumps({"command_name": "login_status"})
-        is_admin = json.loads(ClientSession.message_handle(command))['is_admin']
+        is_admin = json.loads(self.connection.send_message_to_server(command))['is_admin']
         if is_admin:
             choice = 'AdminMenu'
         else:
@@ -701,7 +700,7 @@ class Window:
         last_name = 'unknown'
         is_admin = True
         command = json.dumps({{"command_name": "register", "args": {{"login": f"{login}", "password": f"{password}", "first_name": f"{first_name}", "last_name": f"{last_name}"}}}})
-        while json.loads(ClientSession.message_handle(command))['register_success_status'] != True:
+        while json.loads(self.connection.send_message_to_server(command))['register_success_status'] != True:
 
             key = 'w'
             while key != 'enter':
@@ -719,7 +718,7 @@ class Window:
             command = json.dumps({{"command_name": "register", "args": {{"login": f"{login}", "password": f"{password}", "first_name": f"{first_name}", "last_name": f"{last_name}"}}}})
 
         command = json.dumps({"command_name": "login_status"})
-        is_admin = json.loads(ClientSession.message_handle(command))['is_admin']
+        is_admin = json.loads(self.connection.send_message_to_server(command))['is_admin']
         if is_admin:
             choice = 'AdminMenu'
         else:
@@ -784,7 +783,7 @@ class Window:
         key = 'w'
         while key != 'enter':
             command = json.dumps({"command_name": "get_all_users"})
-            GuestsList = json.loads(ClientSession.message_handle(command))
+            GuestsList = json.loads(self.connection.send_message_to_server(command))
             Draw.GuestsList(GuestsList)
             key = read_key()
         choice = 'AdminMenu'
@@ -795,7 +794,7 @@ class Window:
         key = 'w'
         while key != 'enter':
             command = json.dumps({"command_name": "get_all_users"})
-            GuestsList = json.loads(ClientSession.message_handle(command))
+            GuestsList = json.loads(self.connection.send_message_to_server(command))
             for user in GuestsList['users']:
                 if login == user['login']:
                     number = json.dumps(user['room_number'])
@@ -814,7 +813,7 @@ class Window:
         number = button_id_y
         occupied = False
         command = json.dumps({"command_name": "get_rooms_list"})
-        RoomInfo = json.loads(ClientSession.message_handle(command))
+        RoomInfo = json.loads(self.connection.send_message_to_server(command))
         key = 'w'
         for room in RoomInfo['rooms']:
             if room['room_floor'] == button_id_x and room['room_number'] == button_id_y:
@@ -838,13 +837,13 @@ class Window:
                             command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "cansel_reserve", "username": f"{login}", "reason": f"{reason}"}}})
                         if task == 3:
                             command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "kick_from_room", "username": f"{login}", "reason": f"{reason}"}}})
-                        ClientSession.message_handle(command)
+                        self.connection.send_message_to_server(command)
                     else:
                         print("Введите 1, чтобы зарезервировать ",end="")
                         task = input()
                         if task == 1:
                             command = json.dumps({"command_name": "reserve_room", "args": {{"room_number": f"{number}]"}}})
-                        ClientSession.message_handle(command)
+                        self.connection.send_message_to_server(command)
                     key = read_key()
             else:
                 while key != 'enter':
@@ -863,13 +862,13 @@ class Window:
                             command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "cansel_reserve", "username": f"{login}", "reason": f"{reason}"}}})
                         if task == 3:
                             command = json.dumps({"command_name": "change_user_residence_status", "args": {{"change_type": "kick_from_room", "username": f"{login}", "reason": f"{reason}"}}})
-                        ClientSession.message_handle(command)
+                        self.connection.send_message_to_server(command)
                     else:
                         print("Введите 1, чтобы зарезервировать ",end="")
                         task = input()
                         if task == 1:
                             command = json.dumps({"command_name": "reserve_room", "args": {{"room_number": f"{number}]"}}})
-                        ClientSession.message_handle(command)
+                        self.connection.send_message_to_server(command)
                     key = read_key()
         if is_admin:
             choice = 'AdminMenu'
@@ -882,9 +881,9 @@ class Window:
         key = 'w'
         while key != 'enter':
             command = json.dumps({"command_name": "get_notifications"})
-            NotificationTitle = json.loads(ClientSession.message_handle(command))['notification_title']
-            NotificationDate = json.loads(ClientSession.message_handle(command))['notification_time']
-            Notification = json.loads(ClientSession.message_handle(command))['notification_text']
+            NotificationTitle = json.loads(self.connection.send_message_to_server(command))['notification_title']
+            NotificationDate = json.loads(self.connection.send_message_to_server(command))['notification_time']
+            Notification = json.loads(self.connection.send_message_to_server(command))['notification_text']
             Draw.Notifications(NotificationTitle, NotificationDate, Notification)
             key = read_key()
         if is_admin:
