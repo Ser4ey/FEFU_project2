@@ -8,6 +8,7 @@ class UsersDB:
     def __init__(self, path_to_db = data.config.path_to_database):
         self.path_to_db = path_to_db
         self.create_table_of_users()
+        self.user_register("admin", "admin", "Stepan", "Kot", admin_status=True)
 
     def create_table_of_users(self):
         sql = """
