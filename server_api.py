@@ -83,6 +83,8 @@ class ClientSession:
                     'is_admin': False,
                     'answer_status': 'ok'
                 })
+            if user[5]:
+                self.is_admin = True
             return json.dumps({
                 'server_answer': '',
                 'is_admin': user[5],
@@ -97,14 +99,11 @@ class ClientSession:
                     'room_number': room_number,  # уникален для каждой комнаты
                     'room_floor': room_floor,
                     'occupied': occupied,  # True - комната занята False - комната свободна
-                    'room_resident': '',
-                    'reserve_user': '',
+                    'room_resident': room_resident,
+                    'reserve_user': reserve_user
                 }
-                if self.is_admin:
-                    room_data['room_resident'] = room_resident
-                    room_data['reserve_user'] = reserve_user
-
                 rooms_to_return.append(room_data)
+
             return json.dumps({
                     'server_answer': 'Список комнат',
                     'rooms': rooms_to_return,
@@ -347,11 +346,12 @@ if __name__ == '__main__':
     command6 = {
         'command_name': 'change_user_residence_status',
         'args': {
-            'change_type': 'kick_from_room',
+            'change_type': 'confirm_reserve',
             'username': '21', # мы и так знаем где John живёт или где хочет
             'reason': 'причина от админа, нужна для уведомления пользователю. Например: Комитет по заселению одобрил вашу кандидатуру!'
         }
     }
+    r4 = s.message_handle(json.dumps(command4))
     r4 = s.message_handle(json.dumps(command6))
     print(json.loads(r4))
 

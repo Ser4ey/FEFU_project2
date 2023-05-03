@@ -896,6 +896,8 @@ class Window:
         #     ],
         #     'answer_status': 'ok'
         # }
+        # print(RoomInfo)
+        # time.sleep(3)
         key = 'w'
         for room in RoomInfo['rooms']:
             if room['room_floor'] == button_id_x and room['room_number'] == button_id_y:

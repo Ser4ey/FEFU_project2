@@ -226,9 +226,9 @@ if __name__ == '__main__':
     # {"command_name": "registe_r", "args": {"login":"zxc", "password":"123", "first_name":"gleb", "last_name":"kim"}}
 
     n = NotificationDB()
-    n.add_notification('admin', 'qsdsd', 'A1')
-    n.add_notification('admin', 'wdserfd', 'A2')
-    n.add_notification('admin', 'qsd23!!!!!!sd', 'A3')
+    n.add_notification('21', 'qsdsd', 'A1')
+    n.add_notification('21', 'wdserfd', 'A2')
+    n.add_notification('21', 'qsd23!!!!!!sd', 'A3')
 
     # print(n.get_notifications('admin'))
     r = RoomsDB()
