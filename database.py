@@ -162,7 +162,8 @@ class NotificationDB:
         'login' VARCHAR(255) not null,
         'time' TIMESTAMP not null,
         'text' VARCHAR(255) not null,
-        'read_status' BOOLEAN not null
+        'read_status' BOOLEAN not null,
+        'title' VARCHAR(255) not null
         )"""
         self.execute(sql, commit=True)
 
@@ -189,10 +190,10 @@ class NotificationDB:
 
         return data
 
-    def add_notification(self, login, text):
+    def add_notification(self, login, text, title):
         cur_datetime = datetime.datetime.now()
-        insert = """INSERT INTO notification VALUES (?,?,?,?)"""
-        self.execute(insert, (login, cur_datetime, text, False), commit=True)
+        insert = """INSERT INTO notification VALUES (?,?,?,?,?)"""
+        self.execute(insert, (login, cur_datetime, text, False, title), commit=True)
 
     def get_notifications(self, login):
         sql = "SELECT * FROM notification WHERE login = ?"
@@ -207,6 +208,7 @@ class NotificationDB:
                     'time': item[1],
                     'text': item[2],
                     'read_status': item[3],
+                    'title': item[4]
                 })
             sql_update = "UPDATE notification SET read_status = True WHERE login = ?"
             self.execute(sql_update, (login,), commit=True)
@@ -224,13 +226,13 @@ if __name__ == '__main__':
     # {"command_name": "registe_r", "args": {"login":"zxc", "password":"123", "first_name":"gleb", "last_name":"kim"}}
 
     n = NotificationDB()
-    # n.add_notification(444, 'refds')
-    # n.add_notification(444, 'refds')
+    # n.add_notification(444, 'refds', 'A1')
+    # n.add_notification(444, 'refds', 'A2')
     # n.add_notification(444, 'refds')
 
-    # print(n.get_notifications(444))
-    r = RoomsDB()
+    print(n.get_notifications(444))
+    # r = RoomsDB()
     # r.update_room_info(2, 5, 'room_resident', 'fre4')
-    print(r.get_rooms_list())
+    # print(r.get_rooms_list())
 
 

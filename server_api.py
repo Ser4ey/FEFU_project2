@@ -118,6 +118,8 @@ class ClientSession:
             # если админ подтверждает резервирование, то пользователь засиляется в комнату
             # print(f'AA: {self.rooms_db.select_one_room(reserve_user=self.client_username)}')
             if not (self.rooms_db.select_one_room(reserve_user=self.client_username) is None):
+                self.notification_db.add_notification(self.client_username, 'У вас уже есть зарезервированная комната!',
+                                                      'Невозможно зарезервировать комнату!')
                 return json.dumps({
                     'server_answer': 'У вас уже есть зарезервированная комната!',
                     'reserve_status': 'not_ok',
@@ -126,6 +128,9 @@ class ClientSession:
             current_room = self.rooms_db.select_one_room(room_floor=command['args']['room_floor'],
                                                          room_number=command['args']['room_number'])
             if current_room[3] or current_room[5] != '':
+                self.notification_db.add_notification(self.client_username,
+                                f"Комната {command['args']['room_floor']}:{command['args']['room_number']} - занята",
+                                f'Невозможно зарезервировать комнату!')
                 return json.dumps({
                     'server_answer': 'Комната уже занята(зарезервирована)',
                     'reserve_status': 'not_ok',
@@ -136,6 +141,9 @@ class ClientSession:
                                            room_number=command['args']['room_number'],
                                            thing_to_change='reserve_user',
                                            new_data=self.client_username)
+            self.notification_db.add_notification(self.client_username,
+                 f"Комната {command['args']['room_floor']}:{command['args']['room_number']} - успешно зарезервирована!",
+                 f'Комната зарезервирована!')
 
             return json.dumps({
                 'server_answer': 'Комната успешно зарезервирована',
@@ -153,17 +161,20 @@ class ClientSession:
             # 2) Админ не подтвердил вашу резервацую
             # 3) Вы заселены (Админ подтвердил вашу резервацую)
             # 4) Вы выселены
-
+            notifications_to_return = []
+            notifications = self.notification_db.get_notifications(self.client_username)
+            if notifications:
+                for i in notifications:
+                    notifications_to_return.append({
+                            'notification_time': i['time'],
+                            'notification_title': i['title'],
+                            'notification_text': i['text'],
+                            'notification_read_status': i['read_status'],
+                        }
+                    )
             return json.dumps({
-                'server_answer': 'Есть новые уведомления',
-                'notifications': [
-                    {
-                        'notification_time': '21:43 09.03.2002',
-                        'notification_title': 'Заголовок',
-                        'notification_text': 'Текст уведомления',
-                        'notification_read_status': True, # True - прочитано False - не прочитано
-                    }
-                ],
+                'server_answer': 'Уведомления',
+                'notifications': notifications_to_return,
                 'answer_status': 'ok'
             })
         # команды для админов
@@ -252,11 +263,11 @@ if __name__ == '__main__':
                     'room_number': 5
                 }
             }
-    # s.client_username='123'
-    # s.client_password='123'
+    s.client_username='4044'
+    s.client_password='123'
 
     command5 = {
-        'command_name': 'get_all_users'
+        'command_name': 'get_notifications'
     }
     r4 = s.message_handle(json.dumps(command5))
     print(json.loads(r4))
