@@ -169,7 +169,7 @@ class Draw:
                 elif (i == 12 and j == 30):  # окно 1
                     print("Просмотреть список комнат", end='')
                     j += 24
-                elif (i == 6 and j == (100 - len(f"Здравствуйте, {first_name}!")) / 2):
+                elif (i == 6 and j == (100 - len(f"Здравствуйте, {first_name}!")) // 2):
                     print(f"Здравствуйте, {first_name}!", end='')
                     j += len(f"Здравствуйте, {first_name}!") - 1
                 elif (i == 26 or i == 30) and (25 < j < 70):  # горизонталь
@@ -226,7 +226,7 @@ class Draw:
                 elif (i == 12 and j == 30):  # окно 1
                     print("Просмотреть список комнат", end='')
                     j += 24
-                elif (i == 6 and j == (100 - len(f"Здравствуйте, {first_name}!")) / 2):
+                elif (i == 6 and j == (100 - len(f"Здравствуйте, {first_name}!")) // 2):
                     print(f"Здравствуйте, {first_name}!", end='')
                     j += len(f"Здравствуйте, {first_name}!") - 1
                 elif (i == 18 or i == 22) and (25 < j < 70):  # горизонталь
