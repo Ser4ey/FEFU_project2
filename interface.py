@@ -553,36 +553,39 @@ class Draw:
             print()
             i = i + 1
 
-    def ManageBooking(self, login, floor, number, occupied, is_admin):
+    def ManageBooking(self, reserve_user, room_resident, floor, number, occupied, is_admin):
         clear_console()
         i = 0
         while i < 40:
             j = 0
             while j < 100:
-                if (i == 0 and j == 0) or (i == 10 and j == 25) or (i == 18 and j == 25) or (i == 26 and j == 25) or (
-                        i == 2 and j == 90) or (i == 34 and j == 25):
+                if (i == 0 and j == 0) or (i == 18 and j == 25) or (i == 26 and j == 25) or (i == 34 and j == 25):
                     print("\u250f", end='')  # левый верхний угол
-                elif (i == 0 and j == 99) or (i == 10 and j == 70) or (i == 18 and j == 70) or (
-                        i == 26 and j == 70) or (i == 2 and j == 95) or (i == 34 and j == 70):  # правый угол
+                elif (i == 0 and j == 99) or (i == 18 and j == 70) or (
+                        i == 26 and j == 70) or (i == 34 and j == 70):  # правый угол
                     print("\u2513", end='')
-                elif (i == 39 and j == 0) or (i == 14 and j == 25) or (i == 22 and j == 25) or (
-                        i == 30 and j == 25) or (i == 4 and j == 90) or (i == 38 and j == 25):
+                elif (i == 39 and j == 0) or (i == 22 and j == 25) or (
+                        i == 30 and j == 25) or (i == 38 and j == 25):
                     print("\u2517", end='')
-                elif (i == 39 and j == 99) or (i == 14 and j == 70) or (i == 22 and j == 70) or (
-                        i == 30 and j == 70) or (i == 4 and j == 95) or (i == 38 and j == 70):
+                elif (i == 39 and j == 99) or (i == 22 and j == 70) or (
+                        i == 30 and j == 70) or (i == 38 and j == 70):
                     print("\u251b", end='')
                 elif (i == 0 or i == 39):  # горизонталь
                     print("\u2501", end='')
                 elif j == 0 or j == 99:  # вертикаль
                     print("\u2503", end='')
-                elif (i == 10 or i == 14) and (25 < j < 70):  # горизонталь
-                    print("\u2501", end='')
-                elif (j == 25 or j == 70) and (10 < i < 14):  # вертикаль
-                    print("\u2503", end='')
-                elif (i == 12 and j == 30) and is_admin:  # окно 1
-                    print(f"Логин: {login}", end='')
-                    j += len(f"Логин: {login}") - 1
-                elif (i == 7 and j == 35):
+
+                elif (i == 12 and j == (
+                        100 - len(f"Логин: {room_resident}")) // 2) and is_admin and room_resident != '':  # окно 1
+                    print(f"Логин: {room_resident}", end='')
+                    j += len(f"Логин: {room_resident}") - 1
+
+                elif (i == 12 and j == (
+                        100 - len(f"Логин: {reserve_user}")) // 2) and is_admin and reserve_user != '':  # окно 1
+                    print(f"Логин: {reserve_user}", end='')
+                    j += len(f"Логин: {reserve_user}") - 1
+
+                elif (i == 7 and j == 38):
                     print("Управление бронированием", end='')
                     j += 23
                 elif (i == 18 or i == 22) and (25 < j < 70):  # горизонталь
@@ -610,12 +613,6 @@ class Draw:
                     else:
                         print("Свободна", end='')
                         j += 7
-                elif (i == 2 or i == 4) and (90 < j < 95):  # горизонталь
-                    print("\u2501", end='')
-                elif (j == 90 or j == 95) and (2 < i < 4):  # вертикаль
-                    print("\u2503", end='')
-                elif (i == 3 and j == 92):  # уведомление
-                    print("@", end='')
                 else:
                     print(" ", end='')
                 j = j + 1
@@ -867,99 +864,84 @@ class Window:
 
     # УПРАВЛЕНИЕ БРОНИРОВАНИЕМ
     def ManageBooking(self, is_admin, button_id_x, button_id_y):
-        login = ' '
+        room_resident = ''  # тот кто живёт в комнате
+        reserve_user = ''  # тот кто забронировал комнату
         floor = button_id_x
         number = button_id_y
         occupied = False
         command = json.dumps({"command_name": "get_rooms_list"})
         RoomInfo = json.loads(self.connection.send_message_to_server(command))
-        # RoomInfo = {
-        #     'server_answer': 'Список комнат',
-        #     'rooms': [
-        #         {
-        #             'room_number': 1,  # уникален для каждой комнаты
-        #             'room_floor': 2,
-        #             'occupied': False,  # True - комната занята False - комната свободна
-        #             'room_resident': 'Liza',
-        #             # ник человека проживающего в комнате (эти данные получает только админ),
-        #         },
-        #         {
-        #             'room_number': 4,
-        #             'room_floor': 1,
-        #             'occupied': True,  # True - комната занята False - комната свободна
-        #             'room_resident': 'John',
-        #             # ник человека проживающего в комнате (эти данные получает только админ)
-        #         }
-        #     ],
-        #     'answer_status': 'ok'
-        # }
-        # print(RoomInfo)
-        # time.sleep(3)
         key = 'w'
         for room in RoomInfo['rooms']:
             if room['room_floor'] == button_id_x and room['room_number'] == button_id_y:
-                login = json.dumps(room['room_resident']) # тот кто живёт в комнате
-                login2 = json.dumps(room['reserve_user']) # тот кто забронировал комнату
+                room_resident = json.dumps(room['room_resident']) # тот кто живёт в комнате
+                reserve_user = json.dumps(room['reserve_user']) # тот кто забронировал комнату
                 floor = json.dumps(room['room_floor'])
                 number = json.dumps(room['room_number'])
                 occupied = json.dumps(room['occupied'])
                 while key != 'enter':
                     input()
-                    Draw.ManageBooking(login, floor, number, occupied, is_admin)
+                    Draw.ManageBooking(room_resident, reserve_user, floor, number, occupied, is_admin)
                     if is_admin:
-                        print("Введите команду: (1 - подтвердить бронь, 2 - отменить бронь, 3 - выселить) ",
-                              end="")
+                        print("Введите команду: (1 - подтвердить бронь, 2 - отменить бронь, 3 - выселить) ",end="")
                         task = input()
                         print("Введите причину: ", end="")
                         reason = input()
                         print("Подтвердите (Enter): ")
                         if task == 1:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {"change_type": "confirm_reserve", "username": f"{login2}", "reason": f"{reason}"}})
+                            command = json.dumps({"command_name": "change_user_residence_status", "args": {"change_type": "confirm_reserve", "username": f"{reserve_user}", "reason": f"{reason}"}})
                         if task == 2:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {"change_type": "cansel_reserve", "username": f"{login2}", "reason": f"{reason}"}})
+                            command = json.dumps({"command_name": "change_user_residence_status", "args": {"change_type": "cansel_reserve", "username": f"{reserve_user}", "reason": f"{reason}"}})
                         if task == 3:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {"change_type": "kick_from_room", "username": f"{login}", "reason": f"{reason}"}})
+                            command = json.dumps({"command_name": "change_user_residence_status", "args": {"change_type": "kick_from_room", "username": f"{room_resident}", "reason": f"{reason}"}})
                         if task in [1, 2, 3]:
                             answer = self.connection.send_message_to_server(command)
                             print(answer)
                             time.sleep(1)
                     else:
                         print("Введите 1, чтобы зарезервировать ", end="")
-                        task = input()
-                        if task == 1:
-                            command = json.dumps({"command_name": "reserve_room",
-                                                  "args": {"room_number": number, 'room_floor': floor}})
+                        if input() == 1:
+                            command = json.dumps({"command_name": "reserve_room", "args": {"room_number": number, 'room_floor': floor}})
                             answer = self.connection.send_message_to_server(command)
                             print(answer)
                             time.sleep(1)
                     key = read_key()
             else:
+                room_resident = json.dumps(room['room_resident'])  # тот кто живёт в комнате
+                reserve_user = json.dumps(room['reserve_user'])  # тот кто забронировал комнату
+                floor = json.dumps(room['room_floor'])
+                number = json.dumps(room['room_number'])
+                occupied = json.dumps(room['occupied'])
                 while key != 'enter':
                     input()
-                    Draw.ManageBooking(login, floor, number, occupied, is_admin)
+                    Draw.ManageBooking(room_resident, reserve_user, floor, number, occupied, is_admin)
                     if is_admin:
-                        print("Введите команду: (1 - подтвердить бронь, 2 - отменить бронь, 3 - выселить) ",
-                              end="")
+                        print("Введите команду: (1 - подтвердить бронь, 2 - отменить бронь, 3 - выселить) ", end="")
                         task = input()
                         print("Введите причину: ", end="")
                         reason = input()
                         print("Подтвердите (Enter): ")
                         if task == 1:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {"change_type": "confirm_reserve", "username": f"{login2}", "reason": f"{reason}"}})
+                            command = json.dumps({"command_name": "change_user_residence_status",
+                                                  "args": {"change_type": "confirm_reserve",
+                                                           "username": f"{reserve_user}", "reason": f"{reason}"}})
                         if task == 2:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {"change_type": "cansel_reserve", "username": f"{login2}", "reason": f"{reason}"}})
+                            command = json.dumps({"command_name": "change_user_residence_status",
+                                                  "args": {"change_type": "cansel_reserve",
+                                                           "username": f"{reserve_user}", "reason": f"{reason}"}})
                         if task == 3:
-                            command = json.dumps({"command_name": "change_user_residence_status", "args": {"change_type": "kick_from_room", "username": f"{login}", "reason": f"{reason}"}})
+                            command = json.dumps({"command_name": "change_user_residence_status",
+                                                  "args": {"change_type": "kick_from_room",
+                                                           "username": f"{room_resident}", "reason": f"{reason}"}})
                         if task in [1, 2, 3]:
                             answer = self.connection.send_message_to_server(command)
                             print(answer)
                             time.sleep(1)
                     else:
                         print("Введите 1, чтобы зарезервировать ", end="")
-                        task = input()
-                        if task == 1:
-                            command = json.dumps({"command_name": "reserve_room",
-                                                  "args": {"room_number": number, 'room_floor': floor}})
+                        if input() == 1:
+                            command = json.dumps(
+                                {"command_name": "reserve_room", "args": {"room_number": number, 'room_floor': floor}})
                             answer = self.connection.send_message_to_server(command)
                             print(answer)
                             time.sleep(1)
