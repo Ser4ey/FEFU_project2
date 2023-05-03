@@ -1,5 +1,5 @@
 import json
-from database import Database
+from database import UsrersDB
 # оброботавыет запросы, полученные сервером от клиента, и возвращает ответ на них, который сервер отправит клиенту
 # + вносит соответсвующие изменения в базы данных и т.д
 
@@ -9,7 +9,7 @@ class ClientSession:
         self.client_username = None
         self.client_password = None
         self.is_admin = False
-        self.database = Database()
+        self.usersdb = UsrersDB()
     def message_handle(self, command: str):
         try:
             command = json.loads(command)
@@ -25,57 +25,69 @@ class ClientSession:
             })
 
         if command["command_name"] == "login":
-            self.client_username = command["args"]["login"]
-            self.client_password = command["args"]["password"]
-            return_login_status = self.database.user_login(command["args"]["login"], command["args"]["password"])
-
-            if return_login_status:
-                return json.dumps({
-                    'server_answer': 'Вы успешно вошли в аккаунт',
-                    'login_status': True,
-                    'answer_status': 'ok'
-                })
-            else:
+            user = self.usersdb.get_user_info(command["args"]["login"])
+            if user is None:
                 return json.dumps({
                     'server_answer': 'Пользователя с такими данными не существует',
                     'login_status': False,
                     'answer_status': 'ok'
                 })
-
-        elif command['command_name'] == 'register':
-            self.client_username = command['args']['login']
-            self.client_password = command['args']['password']
-            self.is_admin = self.database.get_admin_status(self.client_username)
-            return_register_status = self.database.user_register(command["args"]["login"], command["args"]["password"], command["args"]["first_name"], command["args"]["last_name"])
-
-            if return_register_status:
+            if str(user[4]) != str(command["args"]["password"]):
                 return json.dumps({
-                    'server_answer': 'Вы успешно зарегистрировались',
-                    'register_success_status': True,
+                    'server_answer': 'Неверный пароль',
+                    'login_status': False,
                     'answer_status': 'ok'
                 })
-            else:
+
+            self.client_username = command["args"]["login"]
+            self.client_password = command["args"]["password"]
+
+            return json.dumps({
+                'server_answer': 'Вы успешно вошли в аккаунт',
+                'login_status': True,
+                'answer_status': 'ok'
+            })
+
+        elif command['command_name'] == 'register':
+            user = self.usersdb.get_user_info(command["args"]["login"])
+            if user is not None:
                 return json.dumps({
                     'server_answer': 'Пользователь с таким именем уже существует',
                     'register_success_status': False,
                     'answer_status': 'ok'
                 })
+
+            self.client_username = command['args']['login']
+            self.client_password = command['args']['password']
+            return_register_status = self.usersdb.user_register(command["args"]["login"], command["args"]["password"], command["args"]["first_name"], command["args"]["last_name"], False)
+
+            return json.dumps({
+                'server_answer': 'Вы успешно зарегистрировались',
+                'register_success_status': True,
+                'answer_status': 'ok'
+            })
+
+
         elif command['command_name'] == 'login_status':
-            return_login_status = self.database.login_status(self.client_username)
-            if return_login_status:
-                return json.dumps({
-                    'server_answer': 'Пользователь с таким именем существует',
-                    'register_status': True,
-                    'is_admin': self.is_admin,
-                    'answer_status': 'ok'
-                })
-            else:
+            user = self.usersdb.get_user_info(self.client_username)
+
+            if user is None:
                 return json.dumps({
                     'server_answer': 'Пользователя с таким именем не существует',
                     'register_status': False,
                     'is_admin': False,
                     'answer_status': 'ok'
                 })
+
+            # return_login_status = self.database.login_status(self.client_username)
+            return json.dumps({
+                'server_answer': 'Пользователь с таким именем существует',
+                'register_status': True,
+                'is_admin': user[5],
+                'answer_status': 'ok'
+            })
+
+
 
         # команды для пользователей, которые вошли в аккаунт (мы уже знаем их логины, поэтому пользователю не нужно их передавать)
         elif command['command_name'] == 'get_rooms_list':
@@ -175,3 +187,27 @@ class ClientSession:
         })
 
 
+if __name__ == '__main__':
+    s = ClientSession()
+
+    command2 = {
+        'command_name': 'login',
+        'args': {
+            'login': 'Stepik',
+            'password': 456
+        }
+    }
+    # r1 = s.message_handle(json.dumps(command2))
+
+    command3 = {
+        'command_name': 'register',
+        'args': {
+            'login': 'Liza',
+            'password': 123,
+            'first_name': "Denis",
+            'last_name': "Gusev",
+        }
+    }
+
+    r2 = s.message_handle(json.dumps(command3))
+    print(json.loads(r2))
