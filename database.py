@@ -1,119 +1,14 @@
-
 import datetime
 import sqlite3
 import json
 import data.config
 
-# пример базы данных (его не объзательно использовать)
-class Database:
+
+class UsersDB:
     def __init__(self, path_to_db = data.config.path_to_database):
         self.path_to_db = path_to_db
-        self.create_table_of_rooms()
         self.create_table_of_users()
 
-
-    @property
-    def connection(self):
-        return sqlite3.connect(self.path_to_db)
-
-    def execute(self, sql: str, parameters: tuple = None, fetchone=False, fetchall=False, commit=False):
-        if not parameters:
-            parameters = tuple()
-
-        connection = self.connection
-        # connection.set_trace_callback(logger)
-        cursor = connection.cursor()
-        cursor.execute(sql, parameters)
-        data = None
-
-        if commit:
-            connection.commit()
-        if fetchone:
-            data = cursor.fetchone()
-        if fetchall:
-            data = cursor.fetchall()
-        connection.close()
-        return data
-
-
-
-    def user_login(self, login, password):
-        sql = "SELECT * FROM users WHERE login = ? and password = ?"
-        result = self.execute(sql, (login, password), fetchone=True)
-
-        if result is not None:
-            # sql_update = "UPDATE users SET login_status='active' WHERE user_id=?"
-            # self.execute(sql_update, (result.user_id,), commit=True)
-            print(f"Вы вошли в аккаунт")
-            return True
-        else:
-            print(f"Вы не смогли войти в аккаунт, либо вы не зарегистрированы")
-            return False
-
-            # return json.dumps({
-            #     'server_answer': f"Вы успешно вошли в аккаунт",
-            #     'answer_status': 'ok'
-            # })
-        # else:
-            # return json.dumps({
-            #     'server_answer': f"Пользователя с такими данными не существует",
-            #     'answer_status': 'ok'
-            # })
-
-
-    def user_register(self, login, password, first_name, last_name, admin_status=False):
-        sql = "SELECT * FROM users WHERE login=?"
-        result = self.execute(sql, (login,), fetchone=True)
-
-        print(f"result = {result}\n")
-        if result is None:
-            sql_insert = "INSERT INTO users (login, password, first_name, last_name, admin_status) VALUES (?, ?, ?, ?, ?)"
-            self.execute(sql_insert, (login, password, first_name, last_name, admin_status), commit=True)
-            user_id = self.connection.cursor().lastrowid
-            print("Вы успешно зарегистрировались")
-            return True
-        else:
-            return False
-
-    def login_status(self, login):
-        sql = "SELECT login FROM users"
-        result = self.execute(sql, (login,), fetchone=True)
-        if result is not None:
-            return True
-        else:
-            return False
-
-    def get_admin_status(self, login):
-        sql = "SELECT admin_status FROM users WHERE login=?"
-        result = self.execute(sql, (login,), fetchone=True)
-        if result is not None:
-            admin_status = result[0]
-            return admin_status
-        else:
-            return False
-
-    def get_all_users(self):
-        sql = "SELECT * FROM users"
-        result = self.execute(sql, fetchall=True)
-
-        users = []
-
-        # for item in result:
-        #     users.append({
-        #         'user_id': item[0],
-        #         'first_name': item[1],
-        #         'last_name': item[2],
-        #         # 'room_resident': item[3],
-        #         'login': item[3],
-        #         'password': item[4],
-        #         'admin_status': bool(item[5])
-        #     })
-
-        return result
-
-
-
-class UsrersDB:
     def create_table_of_users(self):
         sql = """
         create table IF NOT EXISTS `users` (
@@ -123,12 +18,8 @@ class UsrersDB:
           `login` VARCHAR(255) not null,
           `password` VARCHAR(255) not null,
           'admin_status' BOOLEAN not null
-    )"""
+        )"""
         self.execute(sql, commit=True)
-
-    def __init__(self, path_to_db = data.config.path_to_database):
-        self.path_to_db = path_to_db
-        self.create_table_of_users()
 
     @property
     def connection(self):
@@ -152,7 +43,6 @@ class UsrersDB:
             data = cursor.fetchall()
         connection.close()
         return data
-
 
     def user_register(self, login, password, first_name, last_name, admin_status=False):
         sql = "SELECT * FROM users WHERE login=?"
@@ -172,37 +62,41 @@ class UsrersDB:
     def get_all_users(self):
         sql = "SELECT * FROM users"
         result = self.execute(sql, fetchall=True)
-
-        users = []
-        # for item in result:
-        #     users.append({
-        #         'user_id': item[0],
-        #         'first_name': item[1],
-        #         'last_name': item[2],
-        #         # 'room_resident': item[3],
-        #         'login': item[3],
-        #         'password': item[4],
-        #         'admin_status': bool(item[5])
-        #     })
-
         return result
 
     def get_user_info(self, login):
         sql = "SELECT * FROM users WHERE login=?"
         result = self.execute(sql, (login,), fetchone=True)
         return result
-        # if result is not None:
-        #     # status = result[0]
-        #     print("Вы уже есть в системе")
-        #     return
-        # else:
-        #     print("Вас нет в системе")
-        #     return False
 
-class RoomsDb:
+
+class RoomsDB:
     def __init__(self, path_to_db = data.config.path_to_database):
         self.path_to_db = path_to_db
         self.create_table_of_rooms()
+
+    @property
+    def connection(self):
+        return sqlite3.connect(self.path_to_db)
+
+    def execute(self, sql: str, parameters: tuple = None, fetchone=False, fetchall=False, commit=False):
+        if not parameters:
+            parameters = tuple()
+
+        connection = self.connection
+        # connection.set_trace_callback(logger)
+        cursor = connection.cursor()
+        cursor.execute(sql, parameters)
+        data = None
+
+        if commit:
+            connection.commit()
+        if fetchone:
+            data = cursor.fetchone()
+        if fetchall:
+            data = cursor.fetchall()
+        connection.close()
+        return data
 
     def create_table_of_rooms(self):
         sql = """
@@ -259,15 +153,82 @@ class RoomsDb:
             # })
 
 
+class NotificationDB:
+    def __init__(self, path_to_db=data.config.path_to_database):
+        self.path_to_db = path_to_db
+        self.create_table_of_notification()
+
+    def create_table_of_notification(self):
+        sql = """
+        create table IF NOT EXISTS `notification` (
+        'login' VARCHAR(255) not null,
+        'time' TIMESTAMP not null,
+        'text' VARCHAR(255) not null,
+        'read_status' BOOLEAN not null
+        )"""
+        self.execute(sql, commit=True)
+
+    @property
+    def connection(self):
+        return sqlite3.connect(self.path_to_db)
+
+    def execute(self, sql: str, parameters: tuple = None, fetchone=False, fetchall=False, commit=False):
+        if not parameters:
+            parameters = tuple()
+
+        connection = self.connection
+        cursor = connection.cursor()
+        cursor.execute(sql, parameters)
+        data = None
+
+        if commit:
+            connection.commit()
+        if fetchone:
+            data = cursor.fetchone()
+        if fetchall:
+            data = cursor.fetchall()
+        connection.close()
+
+        return data
+
+    def add_notification(self, login, text):
+        cur_datetime = datetime.datetime.now()
+        insert = """INSERT INTO notification VALUES (?,?,?,?)"""
+        self.execute(insert, (login, cur_datetime, text, False), commit=True)
+
+    def get_notifications(self, login):
+        sql = "SELECT * FROM notification WHERE login = ?"
+        result = self.execute(sql, (login,), fetchall=True)
+        if result is None:
+            return []
+        else:
+            notification = []
+
+            for item in result:
+                notification.append({
+                    'time': item[1],
+                    'text': item[2],
+                    'read_status': item[3],
+                })
+            sql_update = "UPDATE notification SET read_status = True WHERE login = ?"
+            self.execute(sql_update, (login,), commit=True)
+
+            return notification
+
+
 if __name__ == '__main__':
-    db = UsrersDB()
-    db.user_register("zxc2", "123", "Gleb", "Kim")
-    print(db.get_user_info("zxc"))
-    # print(db.get_user_info("zxc2"))
-
-    admin = UsrersDB()
-    admin.user_register("Stepik", "456", "Stepan", "Kot", admin_status=True)
-    # print(db.get_user_info("Sergey"))
-
-    print(f"Список всех пользователей: {db.get_all_users()}")
+    # db = UsersDB()
+    # db.user_register("zxc2", "123", "Gleb", "Kim")
+    # db.user_register("Stepik", "456", "Stepan", "Kot", admin_status=True)
+    # # print(db.get_user_info("Sergey"))
+    #
+    # print(f"Список всех пользователей: {db.get_all_users()}")
     # {"command_name": "registe_r", "args": {"login":"zxc", "password":"123", "first_name":"gleb", "last_name":"kim"}}
+
+    n = NotificationDB()
+    # n.add_notification(444, 'refds')
+    # n.add_notification(444, 'refds')
+    # n.add_notification(444, 'refds')
+
+    print(n.get_notifications(444))
+
